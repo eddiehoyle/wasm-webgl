@@ -1,0 +1,27 @@
+# Hello, triangle!
+
+The first test every graphics project starts with.
+
+Requirements:
+
+1. [Rust](https://www.rust-lang.org/)
+2. wasm-opt
+3. An http server of your choosing (I like [live-server](https://www.npmjs.com/package/live-server))
+4. A browser that supports `webGL`, and `wasm`
+
+To build:
+
+```sh
+$ ./build.sh
+```
+
+To run:
+
+```sh
+$ cd dist/
+$ live-server --port=2000
+```
+
+Open your browser to http://127.0.0.1:2000 and you should see your triangle.
+
+![triangle](triangle.png)
