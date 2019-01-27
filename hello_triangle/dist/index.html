@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    <title>Hello</title>
+</head>
+<body>
+    <script>
+      delete WebAssembly.instantiateStreaming;
+    </script>
+    <script src='hello_triangle.js'></script>
+    <script>
+      window.addEventListener('load', async () => {
+          await wasm_bindgen('hello_triangle_bg.wasm');
+      });
+    </script>
+    <canvas id="canvas" width="320" height="240"></canvas>
+</body>
+</html>
