@@ -5,14 +5,14 @@ The first test every graphics project starts with.
 Requirements:
 
 1. [Rust](https://www.rust-lang.org/)
-2. wasm-opt
-3. An http server of your choosing (I like [live-server](https://www.npmjs.com/package/live-server))
+2. [wasm-opt](https://github.com/WebAssembly/binaryen)
+3. Your preferred http server (I like [live-server](https://www.npmjs.com/package/live-server))
 4. A browser that supports `webGL`, and `wasm`
 
 To build:
 
 ```sh
-$ ./build.sh
+$ ./build.sh release
 ```
 
 To run:
