@@ -2,11 +2,14 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
 
+extern crate image;
+
 use js_sys::WebAssembly;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::{WebGlProgram, WebGl2RenderingContext, WebGlShader};
+use web_sys::{WebGlProgram, WebGl2RenderingContext, WebGlShader, WebGlBuffer, console};
 
+use image::{GenericImageView};
 
 
 #[wasm_bindgen(start)]
@@ -23,13 +26,14 @@ pub fn start() -> Result<(), JsValue> {
     let vert_shader = compile_shader(
         &context,
         WebGl2RenderingContext::VERTEX_SHADER,
-        r#"
-        precision highp float;
-        attribute vec4 position;
-        attribute vec3 color;
-        varying vec3 v_color;
+        r#"#version 300 es
+        precision mediump float;
+
+        in vec4 position;
+        in vec3 texCoord;
+//        out vec3 v_texCoord;
         void main() {
-            v_color = color;
+//            v_texCoord = texCoord;
             gl_Position = position;
         }
     "#,
@@ -37,11 +41,14 @@ pub fn start() -> Result<(), JsValue> {
     let frag_shader = compile_shader(
         &context,
         WebGl2RenderingContext::FRAGMENT_SHADER,
-        r#"
-        precision highp float;
-        varying vec3 v_color;
+        r#"#version 300 es
+        precision mediump float;
+
+//        in vec3 v_texCoord;
+        out vec4 outColor;
+//        uniform sampler2D u_image;
         void main() {
-            gl_FragColor = vec4(v_color, 1.0);
+            outColor = texture(0, 0, 0, 1);
         }
     "#,
     )?;
@@ -103,7 +110,13 @@ pub fn start() -> Result<(), JsValue> {
         &vbo_vertices_array,
         WebGl2RenderingContext::STATIC_DRAW,
     );
-    context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&0));
+    context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&WebGlBuffer::from(JsValue::null())));
+
+    // -------------------------------------------------
+
+    let img = image::open("cat.jpg").unwrap();
+    console::log_1(&JsValue::from("hello"));
+    console::log_1(&JsValue::from(img.width()));
 
 //    GLuint vboID;
 //    glGenBuffers( 1, &vboID );
@@ -182,7 +195,7 @@ pub fn link_program<'a, T: IntoIterator<Item = &'a WebGlShader>>(
         context.attach_shader(&program, shader)
     }
     context.bind_attrib_location(&program, 0, "position");
-    context.bind_attrib_location(&program, 1, "color");
+    context.bind_attrib_location(&program, 1, "texCoord");
     context.link_program(&program);
 
     if context

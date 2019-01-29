@@ -41,55 +41,28 @@ function addHeapObject(obj) {
     return idx;
 }
 
-let cachegetUint32Memory = null;
-function getUint32Memory() {
-    if (cachegetUint32Memory === null || cachegetUint32Memory.buffer !== wasm.memory.buffer) {
-        cachegetUint32Memory = new Uint32Array(wasm.memory.buffer);
-    }
-    return cachegetUint32Memory;
+function isLikeNone(x) {
+    return x === undefined || x === null;
 }
 
-__exports.__widl_f_create_element_Document = function(arg0, arg1, arg2, exnptr) {
+__exports.__widl_f_get_element_by_id_Document = function(arg0, arg1, arg2) {
     let varg1 = getStringFromWasm(arg1, arg2);
-    try {
-        return addHeapObject(getObject(arg0).createElement(varg1));
-    } catch (e) {
-        const view = getUint32Memory();
-        view[exnptr / 4] = 1;
-        view[exnptr / 4 + 1] = addHeapObject(e);
 
-    }
-};
+    const val = getObject(arg0).getElementById(varg1);
+    return isLikeNone(val) ? 0 : addHeapObject(val);
 
-__exports.__widl_f_set_title_Document = function(arg0, arg1, arg2) {
-    let varg1 = getStringFromWasm(arg1, arg2);
-    getObject(arg0).title = varg1;
-};
-
-__exports.__widl_f_set_attribute_Element = function(arg0, arg1, arg2, arg3, arg4, exnptr) {
-    let varg1 = getStringFromWasm(arg1, arg2);
-    let varg3 = getStringFromWasm(arg3, arg4);
-    try {
-        getObject(arg0).setAttribute(varg1, varg3);
-    } catch (e) {
-        const view = getUint32Memory();
-        view[exnptr / 4] = 1;
-        view[exnptr / 4 + 1] = addHeapObject(e);
-
-    }
-};
-
-__exports.__widl_f_set_inner_html_Element = function(arg0, arg1, arg2) {
-    let varg1 = getStringFromWasm(arg1, arg2);
-    getObject(arg0).innerHTML = varg1;
 };
 
 __exports.__widl_instanceof_HTMLCanvasElement = function(idx) {
     return getObject(idx) instanceof HTMLCanvasElement ? 1 : 0;
 };
 
-function isLikeNone(x) {
-    return x === undefined || x === null;
+let cachegetUint32Memory = null;
+function getUint32Memory() {
+    if (cachegetUint32Memory === null || cachegetUint32Memory.buffer !== wasm.memory.buffer) {
+        cachegetUint32Memory = new Uint32Array(wasm.memory.buffer);
+    }
+    return cachegetUint32Memory;
 }
 
 __exports.__widl_f_get_context_HTMLCanvasElement = function(arg0, arg1, arg2, exnptr) {
@@ -107,66 +80,61 @@ __exports.__widl_f_get_context_HTMLCanvasElement = function(arg0, arg1, arg2, ex
     }
 };
 
-__exports.__widl_instanceof_WebGLRenderingContext = function(idx) {
-    return getObject(idx) instanceof WebGLRenderingContext ? 1 : 0;
+__exports.__widl_instanceof_WebGL2RenderingContext = function(idx) {
+    return getObject(idx) instanceof WebGL2RenderingContext ? 1 : 0;
 };
 
-__exports.__widl_f_buffer_data_with_array_buffer_view_WebGLRenderingContext = function(arg0, arg1, arg2, arg3) {
+__exports.__widl_f_bind_vertex_array_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).bindVertexArray(getObject(arg1));
+};
+
+__exports.__widl_f_buffer_data_with_array_buffer_view_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
     getObject(arg0).bufferData(arg1, getObject(arg2), arg3);
 };
 
-__exports.__widl_f_attach_shader_WebGLRenderingContext = function(arg0, arg1, arg2) {
+__exports.__widl_f_create_vertex_array_WebGL2RenderingContext = function(arg0) {
+
+    const val = getObject(arg0).createVertexArray();
+    return isLikeNone(val) ? 0 : addHeapObject(val);
+
+};
+
+__exports.__widl_f_attach_shader_WebGL2RenderingContext = function(arg0, arg1, arg2) {
     getObject(arg0).attachShader(getObject(arg1), getObject(arg2));
 };
 
-__exports.__widl_f_bind_attrib_location_WebGLRenderingContext = function(arg0, arg1, arg2, arg3, arg4) {
+__exports.__widl_f_bind_attrib_location_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4) {
     let varg3 = getStringFromWasm(arg3, arg4);
     getObject(arg0).bindAttribLocation(getObject(arg1), arg2, varg3);
 };
 
-__exports.__widl_f_bind_buffer_WebGLRenderingContext = function(arg0, arg1, arg2) {
+__exports.__widl_f_bind_buffer_WebGL2RenderingContext = function(arg0, arg1, arg2) {
     getObject(arg0).bindBuffer(arg1, getObject(arg2));
 };
 
-__exports.__widl_f_clear_WebGLRenderingContext = function(arg0, arg1) {
-    getObject(arg0).clear(arg1);
-};
-
-__exports.__widl_f_clear_color_WebGLRenderingContext = function(arg0, arg1, arg2, arg3, arg4) {
-    getObject(arg0).clearColor(arg1, arg2, arg3, arg4);
-};
-
-__exports.__widl_f_compile_shader_WebGLRenderingContext = function(arg0, arg1) {
+__exports.__widl_f_compile_shader_WebGL2RenderingContext = function(arg0, arg1) {
     getObject(arg0).compileShader(getObject(arg1));
 };
 
-__exports.__widl_f_create_buffer_WebGLRenderingContext = function(arg0) {
+__exports.__widl_f_create_buffer_WebGL2RenderingContext = function(arg0) {
 
     const val = getObject(arg0).createBuffer();
     return isLikeNone(val) ? 0 : addHeapObject(val);
 
 };
 
-__exports.__widl_f_create_program_WebGLRenderingContext = function(arg0) {
+__exports.__widl_f_create_program_WebGL2RenderingContext = function(arg0) {
 
     const val = getObject(arg0).createProgram();
     return isLikeNone(val) ? 0 : addHeapObject(val);
 
 };
 
-__exports.__widl_f_create_shader_WebGLRenderingContext = function(arg0, arg1) {
+__exports.__widl_f_create_shader_WebGL2RenderingContext = function(arg0, arg1) {
 
     const val = getObject(arg0).createShader(arg1);
     return isLikeNone(val) ? 0 : addHeapObject(val);
 
-};
-
-__exports.__widl_f_draw_arrays_WebGLRenderingContext = function(arg0, arg1, arg2, arg3) {
-    getObject(arg0).drawArrays(arg1, arg2, arg3);
-};
-
-__exports.__widl_f_enable_vertex_attrib_array_WebGLRenderingContext = function(arg0, arg1) {
-    getObject(arg0).enableVertexAttribArray(arg1);
 };
 
 let cachedTextEncoder = new TextEncoder('utf-8');
@@ -182,7 +150,7 @@ function passStringToWasm(arg) {
     return ptr;
 }
 
-__exports.__widl_f_get_program_info_log_WebGLRenderingContext = function(ret, arg0, arg1) {
+__exports.__widl_f_get_program_info_log_WebGL2RenderingContext = function(ret, arg0, arg1) {
     const val = getObject(arg0).getProgramInfoLog(getObject(arg1));
     const retptr = isLikeNone(val) ? [0, 0] : passStringToWasm(val);
     const retlen = WASM_VECTOR_LEN;
@@ -192,11 +160,11 @@ __exports.__widl_f_get_program_info_log_WebGLRenderingContext = function(ret, ar
 
 };
 
-__exports.__widl_f_get_program_parameter_WebGLRenderingContext = function(arg0, arg1, arg2) {
+__exports.__widl_f_get_program_parameter_WebGL2RenderingContext = function(arg0, arg1, arg2) {
     return addHeapObject(getObject(arg0).getProgramParameter(getObject(arg1), arg2));
 };
 
-__exports.__widl_f_get_shader_info_log_WebGLRenderingContext = function(ret, arg0, arg1) {
+__exports.__widl_f_get_shader_info_log_WebGL2RenderingContext = function(ret, arg0, arg1) {
     const val = getObject(arg0).getShaderInfoLog(getObject(arg1));
     const retptr = isLikeNone(val) ? [0, 0] : passStringToWasm(val);
     const retlen = WASM_VECTOR_LEN;
@@ -206,25 +174,21 @@ __exports.__widl_f_get_shader_info_log_WebGLRenderingContext = function(ret, arg
 
 };
 
-__exports.__widl_f_get_shader_parameter_WebGLRenderingContext = function(arg0, arg1, arg2) {
+__exports.__widl_f_get_shader_parameter_WebGL2RenderingContext = function(arg0, arg1, arg2) {
     return addHeapObject(getObject(arg0).getShaderParameter(getObject(arg1), arg2));
 };
 
-__exports.__widl_f_link_program_WebGLRenderingContext = function(arg0, arg1) {
+__exports.__widl_f_link_program_WebGL2RenderingContext = function(arg0, arg1) {
     getObject(arg0).linkProgram(getObject(arg1));
 };
 
-__exports.__widl_f_shader_source_WebGLRenderingContext = function(arg0, arg1, arg2, arg3) {
+__exports.__widl_f_shader_source_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
     let varg2 = getStringFromWasm(arg2, arg3);
     getObject(arg0).shaderSource(getObject(arg1), varg2);
 };
 
-__exports.__widl_f_use_program_WebGLRenderingContext = function(arg0, arg1) {
+__exports.__widl_f_use_program_WebGL2RenderingContext = function(arg0, arg1) {
     getObject(arg0).useProgram(getObject(arg1));
-};
-
-__exports.__widl_f_vertex_attrib_pointer_with_i32_WebGLRenderingContext = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
-    getObject(arg0).vertexAttribPointer(arg1, arg2, arg3, arg4 !== 0, arg5, arg6);
 };
 
 __exports.__widl_instanceof_Window = function(idx) {
@@ -238,16 +202,16 @@ __exports.__widl_f_document_Window = function(arg0) {
 
 };
 
+__exports.__widl_f_log_1_ = function(arg0) {
+    console.log(getObject(arg0));
+};
+
 __exports.__wbg_new_f49b071a6847bcff = function(arg0) {
     return addHeapObject(new Float32Array(getObject(arg0)));
 };
 
 __exports.__wbg_subarray_f8934b42fec7ca7c = function(arg0, arg1, arg2) {
     return addHeapObject(getObject(arg0).subarray(arg1, arg2));
-};
-
-__exports.__wbg_length_f560b71a2392427d = function(arg0) {
-    return getObject(arg0).length;
 };
 
 __exports.__wbg_newnoargs_43c5f57b77232284 = function(arg0, arg1) {
@@ -264,6 +228,14 @@ __exports.__wbg_call_7ac13208e630ddeb = function(arg0, arg1, exnptr) {
         view[exnptr / 4 + 1] = addHeapObject(e);
 
     }
+};
+
+__exports.__wbg_new_c126aeb795a9f808 = function(arg0) {
+    return addHeapObject(new Int32Array(getObject(arg0)));
+};
+
+__exports.__wbg_subarray_98e99e1b13252dd6 = function(arg0, arg1, arg2) {
+    return addHeapObject(getObject(arg0).subarray(arg1, arg2));
 };
 
 __exports.__wbg_instanceof_Memory_ed5a1f7b9a0e05a3 = function(idx) {
@@ -289,6 +261,8 @@ __exports.__wbindgen_object_drop_ref = function(i) { dropObject(i); };
 __exports.__wbindgen_string_new = function(p, l) {
     return addHeapObject(getStringFromWasm(p, l));
 };
+
+__exports.__wbindgen_number_new = function(i) { return addHeapObject(i); };
 
 __exports.__wbindgen_boolean_get = function(i) {
     let v = getObject(i);
