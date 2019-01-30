@@ -2,16 +2,19 @@ use wasm_bindgen::prelude::{JsValue};
 use web_sys::{WebGlProgram, WebGl2RenderingContext, WebGlShader};
 use std::collections::HashMap;
 
-pub struct Shader<'a>  {
+pub struct Shader<'a, 'b>  {
     context: &'a WebGl2RenderingContext,
     program: WebGlProgram,
-    attributes: HashMap<u32, str>,
+    attributes: HashMap<u32, &'b str>,
 }
 
-impl Shader<'a> {
+impl<'a, 'b> Shader<'a, 'b> {
 
-    fn new<'a>(context: &'a WebGl2RenderingContext, vertex_source: &str, fragment_source: &str) -> Self {
-        let vertex_shader = compile_shader(context,
+    fn new<S: IntoIterator<Item=&'b WebGlShader>>(context: &'a WebGl2RenderingContext,
+           vertex_source: &str,
+           fragment_source: &str,
+           attributes: &S) -> Self {
+        let vertex_shader= compile_shader(context,
                                            WebGl2RenderingContext::VERTEX_SHADER,
                                            vertex_source);
         let fragment_shader = compile_shader(context,
@@ -24,13 +27,13 @@ impl Shader<'a> {
         }
     }
 
-    fn add_attribute(&self, index: u32, attribute: &str){
-        self.attributes.insert(index, attribute);
+    fn add_attribute(&mut self, index: u32, attribute: &'b str){
+        self.attributes.insert(index, &attribute);
     }
 
     /// Bind shader
-    fn bind(&self, context: &WebGl2RenderingContext) {
-        context.use_program(Some(&self.program))
+    fn bind(&self) {
+        self.context.use_program(Some(&self.program))
     }
 
     /// Unbind shader
@@ -65,9 +68,10 @@ pub fn compile_shader(
     }
 }
 
-pub fn link_program<'a, T: IntoIterator<Item = &'a WebGlShader>>(
+pub fn link_program<'b, 'c, S: Iterator<Item=&'b WebGlShader>, A: Iterator<Item=&'c str>>(
     context: &WebGl2RenderingContext,
-    shaders: T,
+    shaders: S,
+    attributes: A,
 ) -> Result<WebGlProgram, String> {
     let program = context
         .create_program()
@@ -76,9 +80,13 @@ pub fn link_program<'a, T: IntoIterator<Item = &'a WebGlShader>>(
         context.attach_shader(&program, shader)
     }
 
-    // TODO: Break this out
-    context.bind_attrib_location(&program, 0, "position");
-    context.bind_attrib_location(&program, 1, "color");
+    for 
+    for (index, name) in attributes.iter() {
+        context.bind_attrib_location(&program, index, name);
+    }
+//    // TODO: Break this out
+//    context.bind_attrib_location(&program, 0, "position");
+//    context.bind_attrib_location(&program, 1, "color");
 
     context.link_program(&program);
 
