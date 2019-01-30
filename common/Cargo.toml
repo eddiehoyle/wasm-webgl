@@ -1,14 +1,8 @@
 [package]
-name = "hello_triangle"
+name = "wasm-webgl-common"
 version = "0.1.0"
 authors = ["Eddie <eddiepie@gmail.com>"]
 edition = "2018"
-
-[lib]
-crate-type = ["cdylib"]
-
-[dependencies.wasm-webgl-common]
-path = "../common"
 
 [dependencies]
 js-sys = "0.3.10"
@@ -17,12 +11,7 @@ wasm-bindgen = "0.2.33"
 [dependencies.web-sys]
 version = "0.3.4"
 features = [
-  'Document',
-  'Element',
-  'HtmlCanvasElement',
-  'WebGlBuffer',
   'WebGl2RenderingContext',
   'WebGlProgram',
   'WebGlShader',
-  'Window',
 ]
