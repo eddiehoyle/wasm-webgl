@@ -41,25 +41,34 @@ pub fn start() -> Result<(), JsValue> {
     let canvas: web_sys::HtmlCanvasElement = canvas.dyn_into::<web_sys::HtmlCanvasElement>()?;
 
     let context = canvas
-        .get_context("webgl")?
+        .get_context("webgl2")?
         .unwrap()
         .dyn_into::<WebGl2RenderingContext>()?;
 
     let vertex_source = r#"#version 300 es
-        in vec4 position;
+        precision mediump float;
+
+        in vec3 position;
+        in vec3 color;
+
+        out vec3 v_color;
+
         void main() {
+            v_color = color;
             gl_Position = position;
         }
     "#;
     let fragment_source = r#"#version 300 es
         precision mediump float;
+        in vec3 v_color;
         out vec4 outColor;
         void main() {
-            outColor = vec4(0.0, 0.0, 0.0, 1.0);
+            outColor = vec4(v_color.xyz, 1.0);
         }
     "#;
-    let simple_attributes: HashMap<u32, &str> = [(0, "position")].iter().cloned().collect();
+    let simple_attributes: HashMap<u32, &str> = [(0, "position"), (1, "color")].iter().cloned().collect();
     let simple_shader = Shader::new(&context, &vertex_source, &fragment_source, simple_attributes);
+    simple_shader.bind(&context);
 
     let vert_array = create_buffer(&[-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0]);
     let color_array = create_buffer(&[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]);
@@ -75,5 +84,8 @@ pub fn start() -> Result<(), JsValue> {
         0,
         (vert_array.length() / 3) as i32,
     );
+
+    simple_shader.unbind(&context);
+
     Ok(())
 }

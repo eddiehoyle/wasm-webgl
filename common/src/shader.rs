@@ -1,5 +1,5 @@
 use wasm_bindgen::prelude::{JsValue};
-use web_sys::{WebGlProgram, WebGl2RenderingContext, WebGlShader};
+use web_sys::{WebGlProgram, WebGl2RenderingContext, WebGlShader, console};
 use std::collections::HashMap;
 
 use std::iter::Iterator;
@@ -51,6 +51,8 @@ impl<'a> Shader<'a> {
                                              WebGl2RenderingContext::FRAGMENT_SHADER,
                                              fragment_source).expect("Error compiling fragment shader");
 
+
+
         let program = link_program(&context,
                                    [vertex_shader, fragment_shader].iter(),
                                    &attributes).unwrap();
@@ -59,15 +61,14 @@ impl<'a> Shader<'a> {
     }
 
     /// Bind shader
-    fn bind(&self, context: &WebGl2RenderingContext) {
+    pub fn bind(&self, context: &WebGl2RenderingContext) {
         context.use_program(Some(&self.program))
     }
 
     /// Unbind shader
-    fn unbind(&self, context: &WebGl2RenderingContext) {
+    pub fn unbind(&self, context: &WebGl2RenderingContext) {
         context.use_program(Some(&WebGlProgram::from(JsValue::NULL)));
     }
-
 }
 
 pub fn compile_shader(
@@ -80,6 +81,12 @@ pub fn compile_shader(
         .ok_or_else(|| String::from("Unable to create shader object"))?;
     context.shader_source(&shader, source);
     context.compile_shader(&shader);
+    let status = context
+        .get_shader_parameter(&shader, WebGl2RenderingContext::COMPILE_STATUS)
+        .as_bool()
+        .unwrap_or(false);
+    let s = format!("Shader compile status: {}", status);
+    console::log_1(&JsValue::from(s.as_str()));
 
     if context
         .get_shader_parameter(&shader, WebGl2RenderingContext::COMPILE_STATUS)
