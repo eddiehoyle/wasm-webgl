@@ -2,38 +2,65 @@ use wasm_bindgen::prelude::{JsValue};
 use web_sys::{WebGlProgram, WebGl2RenderingContext, WebGlShader};
 use std::collections::HashMap;
 
-pub struct Shader<'a, 'b>  {
-    context: &'a WebGl2RenderingContext,
-    program: WebGlProgram,
-    attributes: HashMap<u32, &'b str>,
+use std::iter::Iterator;
+
+use js_sys::WebAssembly;
+use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsCast;
+
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn shader() {
+        let vertex_source = r#"#version 300 es
+            in vec4 position;
+            void main() {
+                gl_Position = position;
+            }
+        "#;
+        let fragment_source = r#"#version 300 es
+            precision mediump float;
+            out vec4 outColor;
+            void main() {
+               outColor = vec4(0.0, 0.0, 0.0, 1.0);
+            }
+        "#;
+//        let document = web_sys::window().unwrap().document().unwrap();
+    }
+//    let canvas = document.get_element_by_id("canvas").unwrap();
+//    let canvas: web_sys::HtmlCanvasElement = canvas.dyn_into::<web_sys::HtmlCanvasElement>()?;
 }
 
-impl<'a, 'b> Shader<'a, 'b> {
+pub struct Shader<'a>  {
+    program: WebGlProgram,
+    attributes: HashMap<u32, &'a str>,
+}
 
-    fn new<S: IntoIterator<Item=&'b WebGlShader>>(context: &'a WebGl2RenderingContext,
-           vertex_source: &str,
-           fragment_source: &str,
-           attributes: &S) -> Self {
-        let vertex_shader= compile_shader(context,
+impl<'a> Shader<'a> {
+
+    /// TODO
+    pub fn new(context: &WebGl2RenderingContext,
+              vertex_source: &str,
+              fragment_source: &str,
+              attributes: HashMap<u32, &'a str>) -> Self {
+        let vertex_shader = compile_shader(context,
                                            WebGl2RenderingContext::VERTEX_SHADER,
-                                           vertex_source);
+                                           vertex_source).expect("Error compiling vertex shader");
         let fragment_shader = compile_shader(context,
                                              WebGl2RenderingContext::FRAGMENT_SHADER,
-                                             fragment_source);
+                                             fragment_source).expect("Error compiling fragment shader");
 
-        Shader{ context,
-                program: WebGlProgram::from(JsValue::NULL),
-                attributes: HashMap::new(),
-        }
-    }
+        let program = link_program(&context,
+                                   [vertex_shader, fragment_shader].iter(),
+                                   &attributes).unwrap();
 
-    fn add_attribute(&mut self, index: u32, attribute: &'b str){
-        self.attributes.insert(index, &attribute);
+        Shader { program, attributes, }
     }
 
     /// Bind shader
-    fn bind(&self) {
-        self.context.use_program(Some(&self.program))
+    fn bind(&self, context: &WebGl2RenderingContext) {
+        context.use_program(Some(&self.program))
     }
 
     /// Unbind shader
@@ -42,7 +69,6 @@ impl<'a, 'b> Shader<'a, 'b> {
     }
 
 }
-
 
 pub fn compile_shader(
     context: &WebGl2RenderingContext,
@@ -68,11 +94,13 @@ pub fn compile_shader(
     }
 }
 
-pub fn link_program<'b, 'c, S: Iterator<Item=&'b WebGlShader>, A: Iterator<Item=&'c str>>(
+pub fn link_program<'a, S>(
     context: &WebGl2RenderingContext,
     shaders: S,
-    attributes: A,
-) -> Result<WebGlProgram, String> {
+    attributes: &HashMap<u32, &'a str>,
+) -> Result<WebGlProgram, String>
+    where
+        S: Iterator<Item=&'a WebGlShader> {
     let program = context
         .create_program()
         .ok_or_else(|| String::from("Unable to create shader object"))?;
@@ -80,13 +108,9 @@ pub fn link_program<'b, 'c, S: Iterator<Item=&'b WebGlShader>, A: Iterator<Item=
         context.attach_shader(&program, shader)
     }
 
-    for 
-    for (index, name) in attributes.iter() {
-        context.bind_attrib_location(&program, index, name);
+    for (index, name) in attributes {
+        context.bind_attrib_location(&program, *index, *name);
     }
-//    // TODO: Break this out
-//    context.bind_attrib_location(&program, 0, "position");
-//    context.bind_attrib_location(&program, 1, "color");
 
     context.link_program(&program);
 

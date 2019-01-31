@@ -1,3 +1,7 @@
+#[allow(dead_code)]
+#[allow(unused_imports)]
+#[allow(unused_variables)]
+
 extern crate wasm_webgl_common;
 use wasm_webgl_common::shader::Shader;
 
@@ -5,6 +9,7 @@ use js_sys::WebAssembly;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{WebGl2RenderingContext};
+use std::collections::HashMap;
 
 
 pub fn create_buffer(slice: &[f32]) -> js_sys::Float32Array {
@@ -40,33 +45,21 @@ pub fn start() -> Result<(), JsValue> {
         .unwrap()
         .dyn_into::<WebGl2RenderingContext>()?;
 
-    let vert_shader = Shader::compile_shader(
-        &context,
-        WebGl2RenderingContext::VERTEX_SHADER,
-        r#"
-        precision highp float;
-        attribute vec4 position;
-        attribute vec3 color;
-        varying vec3 v_color;
+    let vertex_source = r#"#version 300 es
+        in vec4 position;
         void main() {
-            v_color = color;
             gl_Position = position;
         }
-    "#,
-    )?;
-    let frag_shader = Shader::compile_shader(
-        &context,
-        WebGl2RenderingContext::FRAGMENT_SHADER,
-        r#"
-        precision highp float;
-        varying vec3 v_color;
+    "#;
+    let fragment_source = r#"#version 300 es
+        precision mediump float;
+        out vec4 outColor;
         void main() {
-            gl_FragColor = vec4(v_color, 1.0);
+            outColor = vec4(0.0, 0.0, 0.0, 1.0);
         }
-    "#,
-    )?;
-    let program = Shader::link_program(&context, [vert_shader, frag_shader].iter())?;
-    context.use_program(Some(&program));
+    "#;
+    let simple_attributes: HashMap<u32, &str> = [(0, "position")].iter().cloned().collect();
+    let simple_shader = Shader::new(&context, &vertex_source, &fragment_source, simple_attributes);
 
     let vert_array = create_buffer(&[-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0]);
     let color_array = create_buffer(&[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]);
