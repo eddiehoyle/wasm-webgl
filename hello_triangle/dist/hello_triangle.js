@@ -211,10 +211,6 @@ __exports.__widl_f_document_Window = function(arg0) {
 
 };
 
-__exports.__widl_f_log_1_ = function(arg0) {
-    console.log(getObject(arg0));
-};
-
 __exports.__wbg_new_f49b071a6847bcff = function(arg0) {
     return addHeapObject(new Float32Array(getObject(arg0)));
 };

@@ -8,31 +8,8 @@ use js_sys::WebAssembly;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn shader() {
-        let vertex_source = r#"#version 300 es
-            in vec4 position;
-            void main() {
-                gl_Position = position;
-            }
-        "#;
-        let fragment_source = r#"#version 300 es
-            precision mediump float;
-            out vec4 outColor;
-            void main() {
-               outColor = vec4(0.0, 0.0, 0.0, 1.0);
-            }
-        "#;
-//        let document = web_sys::window().unwrap().document().unwrap();
-    }
-//    let canvas = document.get_element_by_id("canvas").unwrap();
-//    let canvas: web_sys::HtmlCanvasElement = canvas.dyn_into::<web_sys::HtmlCanvasElement>()?;
-}
-
 pub struct Shader<'a>  {
+    name: &'a str,
     program: WebGlProgram,
     attributes: HashMap<u32, &'a str>,
 }
@@ -41,23 +18,20 @@ impl<'a> Shader<'a> {
 
     /// TODO
     pub fn new(context: &WebGl2RenderingContext,
-              vertex_source: &str,
-              fragment_source: &str,
-              attributes: HashMap<u32, &'a str>) -> Self {
+               name: &'a str,
+               vertex_source: &str,
+               fragment_source: &str,
+               attributes: HashMap<u32, &'a str>) -> Result<Self, String> {
         let vertex_shader = compile_shader(context,
                                            WebGl2RenderingContext::VERTEX_SHADER,
-                                           vertex_source).expect("Error compiling vertex shader");
+                                           vertex_source)?;
         let fragment_shader = compile_shader(context,
-                                             WebGl2RenderingContext::FRAGMENT_SHADER,
-                                             fragment_source).expect("Error compiling fragment shader");
-
-
-
+                                           WebGl2RenderingContext::FRAGMENT_SHADER,
+                                           fragment_source)?;
         let program = link_program(&context,
                                    [vertex_shader, fragment_shader].iter(),
-                                   &attributes).unwrap();
-
-        Shader { program, attributes, }
+                                   &attributes)?;
+        Ok(Shader { name, program, attributes, })
     }
 
     /// Bind shader
@@ -81,13 +55,6 @@ pub fn compile_shader(
         .ok_or_else(|| String::from("Unable to create shader object"))?;
     context.shader_source(&shader, source);
     context.compile_shader(&shader);
-    let status = context
-        .get_shader_parameter(&shader, WebGl2RenderingContext::COMPILE_STATUS)
-        .as_bool()
-        .unwrap_or(false);
-    let s = format!("Shader compile status: {}", status);
-    console::log_1(&JsValue::from(s.as_str()));
-
     if context
         .get_shader_parameter(&shader, WebGl2RenderingContext::COMPILE_STATUS)
         .as_bool()

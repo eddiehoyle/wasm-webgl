@@ -1,18 +1,18 @@
-#[allow(dead_code)]
-#[allow(unused_imports)]
-#[allow(unused_variables)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
 
 extern crate wasm_webgl_common;
 use wasm_webgl_common::shader::Shader;
+use wasm_webgl_common::buffer::BufferF32;
 
 use js_sys::WebAssembly;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::{WebGl2RenderingContext};
+use web_sys::{WebGl2RenderingContext, console};
 use std::collections::HashMap;
 
-
-pub fn create_buffer(slice: &[f32]) -> js_sys::Float32Array {
+pub fn create_buffer_f32(slice: &[f32]) -> js_sys::Float32Array {
     let mem = wasm_bindgen::memory()
         .dyn_into::<WebAssembly::Memory>()
         .unwrap()
@@ -47,31 +47,35 @@ pub fn start() -> Result<(), JsValue> {
 
     let vertex_source = r#"#version 300 es
         precision mediump float;
-
         in vec3 position;
         in vec3 color;
-
-        out vec3 v_color;
-
+        out vec3 vColor;
         void main() {
-            v_color = color;
-            gl_Position = position;
+            vColor = color;
+            gl_Position = vec4(position, 1.0);
         }
     "#;
     let fragment_source = r#"#version 300 es
         precision mediump float;
-        in vec3 v_color;
+        in vec3 vColor;
         out vec4 outColor;
         void main() {
-            outColor = vec4(v_color.xyz, 1.0);
+            outColor = vec4(vColor, 1.0);
         }
     "#;
     let simple_attributes: HashMap<u32, &str> = [(0, "position"), (1, "color")].iter().cloned().collect();
-    let simple_shader = Shader::new(&context, &vertex_source, &fragment_source, simple_attributes);
+
+    let simple_shader = Shader::new(&context,
+                                    &"simple",
+                                    &vertex_source,
+                                    &fragment_source,
+                                    simple_attributes)?;
+
     simple_shader.bind(&context);
 
-    let vert_array = create_buffer(&[-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0]);
-    let color_array = create_buffer(&[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]);
+//    let vert_array = create_buffer_f32(&[-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0]);
+    let vert_array = BufferF32::new(&[-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0]);
+    let color_array = create_buffer_f32(&[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]);
 
     bind_buffer(&context,0, &vert_array);
     bind_buffer(&context,1, &color_array);
