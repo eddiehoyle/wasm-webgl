@@ -14,22 +14,22 @@
       window.addEventListener('load', async () => {
           await wasm_bindgen('textured_quad_bg.wasm');
 
-          var hidden =  document.createElement('canvas');
-          hidden.width = 320;
-          hidden.height = 240;
-          hidden_ctx = hidden.getContext('2d');
-
-          // Asynchronously load an image
-          var image = new Image();
-          image.src = "cat.png";
-          image.addEventListener('load', function() {
-              hidden.width = image.width;
-              hidden.height = image.height;
-              hidden_ctx.drawImage(image, 0, 0 );
-              var data = hidden_ctx.getImageData(0, 0, image.width, image.height);
-              wasm_bindgen.read_image(data)
-
-          });
+          // var hidden =  document.createElement('canvas');
+          // hidden.width = 320;
+          // hidden.height = 240;
+          // hidden_ctx = hidden.getContext('2d');
+          //
+          // // Asynchronously load an image
+          // var image = new Image();
+          // image.src = "cat.png";
+          // image.addEventListener('load', function() {
+          //     hidden.width = image.width;
+          //     hidden.height = image.height;
+          //     hidden_ctx.drawImage(image, 0, 0 );
+          //     var data = hidden_ctx.getImageData(0, 0, image.width, image.height);
+          //     wasm_bindgen.read_image(data)
+          //
+          // });
       });
 
     </script>

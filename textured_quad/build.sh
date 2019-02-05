@@ -7,7 +7,9 @@ if [ ! -d "dist" ]; then
 fi
 
 PROJECT=${PWD##*/}
-  
+RUST_BACKTRACE=1
+CARGO_MANIFEST_DIR="./dist"
+
 if [ "$1" == "release" ]; then
     echo "Building release"
     cargo build --target wasm32-unknown-unknown --release
@@ -16,7 +18,6 @@ if [ "$1" == "release" ]; then
     mv dist/optimized.wasm dist/$PROJECT_bg.wasm
 else
     echo "Building debug"
-    RUST_BACKTRACE=1
     cargo build --target wasm32-unknown-unknown
     wasm-bindgen ./target/wasm32-unknown-unknown/debug/$PROJECT.wasm --out-dir dist --no-typescript --no-modules
 fi

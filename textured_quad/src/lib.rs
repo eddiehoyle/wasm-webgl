@@ -3,12 +3,12 @@
 #![allow(unused_variables)]
 
 extern crate wasm_webgl_common;
-extern crate image;
+#[macro_use]
+extern crate resource;
 
 use wasm_webgl_common::shader::Shader;
 use wasm_webgl_common::buffer::*;
 
-use image::{DynamicImage};
 use js_sys::WebAssembly;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -17,6 +17,9 @@ use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
 use std::mem;
 use std::fs::File;
+use resource::*;
+use std::borrow::Cow;
+use std::env;
 
 pub fn buffer_array(context: &WebGl2RenderingContext,
                     index: u32,
@@ -84,21 +87,6 @@ pub fn read_image(img: &ImageData) {
 }
 
 
-#[wasm_bindgen]
-pub fn read_img(ptr: *mut u8, len: usize) {
-    let img = unsafe { Vec::from_raw_parts(ptr, len, len) };
-
-    let img = match image::load_from_memory(&img) {
-        Ok(i) => i,
-        Err(e) => {
-            console::log_1(&JsValue::from(e.to_string()));
-            return;
-        }
-    };
-
-    console::log_1(&JsValue::from(format!("{:?}", img.to_rgba())));
-}
-
 #[wasm_bindgen(start)]
 pub fn start() -> Result<(), JsValue> {
     let document = web_sys::window().unwrap().document().unwrap();
@@ -137,6 +125,35 @@ pub fn start() -> Result<(), JsValue> {
                                     simple_attributes)?;
 
     simple_shader.bind(&context);
+
+//    env::set_var("CARGO_MANIFEST_DIR", format!("{}/{}", env!("CARGO_MANIFEST_DIR"), "dist"));
+    let cmd = env!("CARGO_MANIFEST_DIR");
+    console::log_1(&JsValue::from(cmd));
+
+
+
+    let img = resource!("dist/cat.png");
+//    Luint textureID;
+//    glGenTextures( 1, &textureID );
+//    glBindTexture(GL_TEXTURE_2D, textureID);
+
+//    let texture_id = context.create_texture().unwrap();
+//    context.bind_texture(WebGl2RenderingContext::TEXTURE_2D, Some(&texture_id));
+
+//    context.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
+//        WebGl2RenderingContext::TEXTURE_2D,
+//        0,
+//        WebGl2RenderingContext::RGBA as i32,
+//        270,
+//        270,
+//        0,
+//        WebGl2RenderingContext::RGBA,
+//        WebGl2RenderingContext::UNSIGNED_BYTE,
+//        Some(img.to_mut()),
+//    ).unwrap();
+    console::log_1(&JsValue::from("image loaded i thikn?"));
+
+
 
 //    let vert_buffer = BufferF32::new(&[-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0], 3);
 //    let color_buffer = BufferF32::new(&[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0], 3);

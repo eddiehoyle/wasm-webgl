@@ -38,15 +38,6 @@
     };
 
     /**
-    * @param {number} arg0
-    * @param {number} arg1
-    * @returns {void}
-    */
-    __exports.read_img = function(arg0, arg1) {
-        return wasm.read_img(arg0, arg1);
-    };
-
-    /**
     * @returns {void}
     */
     __exports.start = function() {
