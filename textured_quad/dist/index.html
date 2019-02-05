@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
-    <title>Textured Quad</title>
+    <title>Hello</title>
 </head>
 <body>
     <script>
@@ -10,10 +10,30 @@
     </script>
     <script src='textured_quad.js'></script>
     <script>
+
       window.addEventListener('load', async () => {
           await wasm_bindgen('textured_quad_bg.wasm');
+
+          var hidden =  document.createElement('canvas');
+          hidden.width = 320;
+          hidden.height = 240;
+          hidden_ctx = hidden.getContext('2d');
+
+          // Asynchronously load an image
+          var image = new Image();
+          image.src = "cat.png";
+          image.addEventListener('load', function() {
+              hidden.width = image.width;
+              hidden.height = image.height;
+              hidden_ctx.drawImage(image, 0, 0 );
+              var data = hidden_ctx.getImageData(0, 0, image.width, image.height);
+              wasm_bindgen.read_image(data)
+
+          });
       });
+
     </script>
     <canvas id="canvas" width="320" height="240"></canvas>
+    <canvas id="canvas_image" width="320" height="240"></canvas>
 </body>
 </html>

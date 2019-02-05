@@ -1,16 +1,103 @@
 #![allow(dead_code)]
-#![allow(unused_variables)]
 #![allow(unused_imports)]
+#![allow(unused_variables)]
 
+extern crate wasm_webgl_common;
 extern crate image;
 
+use wasm_webgl_common::shader::Shader;
+use wasm_webgl_common::buffer::*;
+
+use image::{DynamicImage};
 use js_sys::WebAssembly;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::{WebGlProgram, WebGl2RenderingContext, WebGlShader, WebGlBuffer, console};
+use web_sys::*;
+use std::collections::HashMap;
+use wasm_bindgen::prelude::*;
+use std::mem;
+use std::fs::File;
 
-use image::{GenericImageView};
+pub fn buffer_array(context: &WebGl2RenderingContext,
+                    index: u32,
+                    buffer: &BufferF32,
+) {
+    let id = context.create_buffer().ok_or("failed to create buffer").unwrap();
+    context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&id));
+    context.buffer_data_with_array_buffer_view(
+        WebGl2RenderingContext::ARRAY_BUFFER,
+        &buffer.array(),
+        WebGl2RenderingContext::STATIC_DRAW,
+    );
+    context.vertex_attrib_pointer_with_i32(index, buffer.size(), buffer.data_type(), false, 0, 0);
+//    context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&JsValue::NULL));
+//    context.enable_vertex_attrib_array(index);
+}
 
+pub fn buffer_indices(context: &WebGl2RenderingContext,
+                      buffer: &BufferU32,
+) {
+    let id = context.create_buffer().ok_or("failed to create buffer").unwrap();
+    context.bind_buffer(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, Some(&id));
+    context.buffer_data_with_array_buffer_view(
+        WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER,
+        &buffer.array(),
+        WebGl2RenderingContext::STATIC_DRAW,
+    );
+}
+
+
+#[wasm_bindgen]
+pub fn alloc(len: usize) -> *mut u8 {
+    let mut buf = Vec::with_capacity(len);
+    let ptr = buf.as_mut_ptr();
+    mem::forget(buf);
+    ptr
+}
+
+#[wasm_bindgen]
+pub fn read_image(img: &ImageData) {
+    console::log_1(&JsValue::from(format!("{:?}x{:?}", img.width(), img.height())));
+
+    let document = web_sys::window().unwrap().document().unwrap();
+    let canvas = document.get_element_by_id("canvas").unwrap();
+    let canvas: web_sys::HtmlCanvasElement = canvas.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
+
+    // TODO: This looks like it's on the right path
+    // Try pass in the correct context instead of re-fetching
+    // Set up texture bind etc as before
+
+    let context = canvas
+        .get_context("webgl2")
+        .unwrap().unwrap()
+        .dyn_into::<WebGl2RenderingContext>().unwrap();
+
+    context.tex_image_2d_with_u32_and_u32_and_image_data(
+        WebGl2RenderingContext::TEXTURE_2D,
+        0,
+        WebGl2RenderingContext::RGBA as i32,
+        WebGl2RenderingContext::RGBA,
+        WebGl2RenderingContext::UNSIGNED_BYTE,
+        &img,
+    ).unwrap();
+    console::log_1(&JsValue::from("image loaded i thikn?"));
+}
+
+
+#[wasm_bindgen]
+pub fn read_img(ptr: *mut u8, len: usize) {
+    let img = unsafe { Vec::from_raw_parts(ptr, len, len) };
+
+    let img = match image::load_from_memory(&img) {
+        Ok(i) => i,
+        Err(e) => {
+            console::log_1(&JsValue::from(e.to_string()));
+            return;
+        }
+    };
+
+    console::log_1(&JsValue::from(format!("{:?}", img.to_rgba())));
+}
 
 #[wasm_bindgen(start)]
 pub fn start() -> Result<(), JsValue> {
@@ -23,213 +110,80 @@ pub fn start() -> Result<(), JsValue> {
         .unwrap()
         .dyn_into::<WebGl2RenderingContext>()?;
 
-    let vert_shader = compile_shader(
-        &context,
-        WebGl2RenderingContext::VERTEX_SHADER,
-        r#"#version 300 es
+    let vertex_source = r#"#version 300 es
         precision mediump float;
-
-        in vec4 position;
-        in vec3 texCoord;
-//        out vec3 v_texCoord;
+        in vec3 position;
+        in vec3 color;
+        out vec3 vColor;
         void main() {
-//            v_texCoord = texCoord;
-            gl_Position = position;
+            vColor = color;
+            gl_Position = vec4(position, 1.0);
         }
-    "#,
-    )?;
-    let frag_shader = compile_shader(
-        &context,
-        WebGl2RenderingContext::FRAGMENT_SHADER,
-        r#"#version 300 es
+    "#;
+    let fragment_source = r#"#version 300 es
         precision mediump float;
-
-//        in vec3 v_texCoord;
+        in vec3 vColor;
         out vec4 outColor;
-//        uniform sampler2D u_image;
         void main() {
-            outColor = texture(0, 0, 0, 1);
+            outColor = vec4(vColor, 1.0);
         }
-    "#,
-    )?;
-    let program = link_program(&context, [vert_shader, frag_shader].iter())?;
-    context.use_program(Some(&program));
+    "#;
+    let simple_attributes: HashMap<u32, &str> = [(0, "position"), (1, "color")].iter().cloned().collect();
 
-    let vertices: [f32; 12] = [
-        -0.5, 0.5, 0.0,
-        -0.5, -0.5, 0.0,
-        0.5, -0.5, 0.0,
-        0.5, 0.5, 0.0,
-    ];
+    let simple_shader = Shader::new(&context,
+                                    &"simple",
+                                    &vertex_source,
+                                    &fragment_source,
+                                    simple_attributes)?;
 
-    let indices: [u32; 6] = [
-        0, 1, 3,
-        3, 1, 2
-    ];
+    simple_shader.bind(&context);
 
-    let uvs: [f32; 8] = [
-        0.0, 0.0,
-        0.0, 1.0,
-        1.0, 1.0,
-        1.0, 0.0,
-    ];
+//    let vert_buffer = BufferF32::new(&[-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0], 3);
+//    let color_buffer = BufferF32::new(&[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0], 3);
+//    bind_buffer(&context, 0, WebGl2RenderingContext::ARRAY_BUFFER, &vert_buffer);
+//    bind_buffer(&context, 1, WebGl2RenderingContext::ARRAY_BUFFER, &color_buffer);
 
     let vao = context.create_vertex_array().unwrap();
     context.bind_vertex_array(Some(&vao));
 
-    let vbo = context.create_buffer().ok_or("Failed to create VBO").unwrap();
-    context.bind_buffer(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, Some(&vbo));
-    let vbo_mem = wasm_bindgen::memory()
-        .dyn_into::<WebAssembly::Memory>()
-        .unwrap()
-        .buffer();
-    let vbo_array = js_sys::Int32Array::new(&vbo_mem)
-        .subarray(indices.as_ptr() as u32,
-                  indices.as_ptr() as u32 + indices.len() as u32);
-    context.bind_buffer(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, Some(&vbo));
-    context.buffer_data_with_array_buffer_view(
-        WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER,
-        &vbo_array,
-        WebGl2RenderingContext::STATIC_DRAW,
-    );
+    let vert_buffer = BufferF32::new(&[
+        -0.5, 0.5, 0.0,
+        -0.5, -0.5, 0.0,
+        0.5, -0.5, 0.0,
+        0.5, 0.5, 0.0,
+    ], 3);
+    let color_buffer = BufferF32::new(&[
+        1.0, 0.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, 0.0, 1.0,
+        1.0, 1.0, 1.0,
+    ], 3);
 
-    // -------------------------------------------------
-
-    let vbo_vertices = context.create_buffer().ok_or("Failed to create VBO").unwrap();
-    context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&vbo));
-    let vbo_vertices_mem = wasm_bindgen::memory()
-        .dyn_into::<WebAssembly::Memory>()
-        .unwrap()
-        .buffer();
-    let vbo_vertices_array = js_sys::Float32Array::new(&vbo_vertices_mem)
-        .subarray(vertices.as_ptr() as u32,
-                  vertices.as_ptr() as u32 + vertices.len() as u32);
-    context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&vbo_vertices));
-    context.buffer_data_with_array_buffer_view(
-        WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER,
-        &vbo_vertices_array,
-        WebGl2RenderingContext::STATIC_DRAW,
-    );
-    context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&WebGlBuffer::from(JsValue::null())));
-
-    // -------------------------------------------------
-
-    let img = image::open("cat.jpg").unwrap();
-    console::log_1(&JsValue::from("hello"));
-    console::log_1(&JsValue::from(img.width()));
-
-//    GLuint vboID;
-//    glGenBuffers( 1, &vboID );
-//    glBindBuffer( GL_ARRAY_BUFFER, vboID );
-//    glBufferData( GL_ARRAY_BUFFER, sizeof( GLfloat ) * data.size(), &data[0], GL_STATIC_DRAW );
-//    glVertexAttribPointer( attributeNumber,   // The attribute number
-//                           coordinateSize,    // Length of each data array
-//                           GL_FLOAT,          // Type of data
-//                           GL_FALSE,          // Is this data normalized
-//                           0,                 // Distance between vertices (is there any other data between them?)
-//                           0 );               // Offset. Should it start at the beginning of this data?
-//    glBindBuffer( GL_ARRAY_BUFFER, 0 );
-//    m_vbos.push_back( vboID );
-
-//    context.buffer_data_with_array_buffer_view(
-//        WebGl2RenderingContext::ARRAY_BUFFER,
-//        &array,
-//        WebGl2RenderingContext::STATIC_DRAW,
-//    );
-//    GLuint vboID;
-//    glGenBuffers( 1, &vboID );
-//    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vboID );
-//    glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( GLuint ) * indices.size(), &indices[0], GL_STATIC_DRAW );
-//    m_vbos.push_back( vboID );
-//
+    let index_buffer = BufferU32::new(&[
+        0, 1, 3,
+        3, 1, 2,
+    ]);
 
 
+    buffer_array(&context, 0, &vert_buffer);
+    buffer_array(&context, 1, &color_buffer);
+    buffer_indices(&context, &index_buffer);
 
-//
-//    bind_buffer(&context,0, &vert_array);
-//    bind_buffer(&context,1, &color_array);
-//
-//    context.clear_color(0.0, 0.0, 0.0, 1.0);
-//    context.clear(WebGl2RenderingContext::COLOR_BUFFER_BIT);
-//
-//    context.draw_arrays(
-//        WebGl2RenderingContext::TRIANGLES,
-//        0,
-//        (vert_array.length() / 3) as i32,
-//    );
+
+    context.clear_color(0.0, 0.0, 0.0, 1.0);
+    context.clear(WebGl2RenderingContext::COLOR_BUFFER_BIT);
+
+    context.bind_vertex_array(Some(&vao));
+    context.enable_vertex_attrib_array(0);
+    context.enable_vertex_attrib_array(1);
+    context.draw_elements_with_i32(WebGl2RenderingContext::TRIANGLES,
+                                   index_buffer.array().length() as i32,
+                                   WebGl2RenderingContext::UNSIGNED_INT,
+                                   0);
+    context.disable_vertex_attrib_array(0);
+    context.disable_vertex_attrib_array(1);
+
+    simple_shader.unbind(&context);
+
     Ok(())
-}
-
-pub fn compile_shader(
-    context: &WebGl2RenderingContext,
-    shader_type: u32,
-    source: &str,
-) -> Result<WebGlShader, String> {
-    let shader = context
-        .create_shader(shader_type)
-        .ok_or_else(|| String::from("Unable to create shader object"))?;
-    context.shader_source(&shader, source);
-    context.compile_shader(&shader);
-
-    if context
-        .get_shader_parameter(&shader, WebGl2RenderingContext::COMPILE_STATUS)
-        .as_bool()
-        .unwrap_or(false)
-    {
-        Ok(shader)
-    } else {
-        Err(context
-            .get_shader_info_log(&shader)
-            .unwrap_or_else(|| "Unknown error creating shader".into()))
-    }
-}
-
-pub fn link_program<'a, T: IntoIterator<Item = &'a WebGlShader>>(
-    context: &WebGl2RenderingContext,
-    shaders: T,
-) -> Result<WebGlProgram, String> {
-    let program = context
-        .create_program()
-        .ok_or_else(|| String::from("Unable to create shader object"))?;
-    for shader in shaders {
-        context.attach_shader(&program, shader)
-    }
-    context.bind_attrib_location(&program, 0, "position");
-    context.bind_attrib_location(&program, 1, "texCoord");
-    context.link_program(&program);
-
-    if context
-        .get_program_parameter(&program, WebGl2RenderingContext::LINK_STATUS)
-        .as_bool()
-        .unwrap_or(false)
-    {
-        Ok(program)
-    } else {
-        Err(context
-            .get_program_info_log(&program)
-            .unwrap_or_else(|| "Unknown error creating program object".into()))
-    }
-}
-
-//pub fn create_buffer<DataT, ArrayT: Default>(slice: &[DataT]) -> ArrayT {
-//    let mem = wasm_bindgen::memory()
-//        .dyn_into::<WebAssembly::Memory>()
-//        .unwrap()
-//        .buffer();
-//    let slice_location = slice.as_ptr() as u32 / 4;
-//    let mut a = <ArrayT as Default>::default();
-//    a.subarray(slice_location, slice_location + slice.len() as u32)
-//}
-
-
-pub fn bind_buffer(context: &WebGl2RenderingContext, index: u32, array: &js_sys::Float32Array) {
-    let buffer = context.create_buffer().ok_or("failed to create buffer").unwrap();
-    context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&buffer));
-    context.buffer_data_with_array_buffer_view(
-        WebGl2RenderingContext::ARRAY_BUFFER,
-        &array,
-        WebGl2RenderingContext::STATIC_DRAW,
-    );
-    context.vertex_attrib_pointer_with_i32(index, 3, WebGl2RenderingContext::FLOAT, false, 0, 0);
-    context.enable_vertex_attrib_array(index);
 }
