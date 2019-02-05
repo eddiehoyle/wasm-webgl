@@ -4,35 +4,42 @@
 
 extern crate wasm_webgl_common;
 use wasm_webgl_common::shader::Shader;
-use wasm_webgl_common::buffer::BufferF32;
+use wasm_webgl_common::buffer::*;
 
 use js_sys::WebAssembly;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::{WebGl2RenderingContext, console};
+use web_sys::{WebGl2RenderingContext, console, WebGlVertexArrayObject};
 use std::collections::HashMap;
 
-pub fn create_buffer_f32(slice: &[f32]) -> js_sys::Float32Array {
-    let mem = wasm_bindgen::memory()
-        .dyn_into::<WebAssembly::Memory>()
-        .unwrap()
-        .buffer();
-    let slice_location = slice.as_ptr() as u32 / 4;
-    js_sys::Float32Array::new(&mem)
-        .subarray(slice_location, slice_location + slice.len() as u32)
-}
-
-pub fn bind_buffer(context: &WebGl2RenderingContext, index: u32, array: &js_sys::Float32Array) {
-    let buffer = context.create_buffer().ok_or("failed to create buffer").unwrap();
-    context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&buffer));
+pub fn buffer_array(context: &WebGl2RenderingContext,
+                    index: u32,
+                    buffer: &BufferF32,
+) {
+    let id = context.create_buffer().ok_or("failed to create buffer").unwrap();
+    context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&id));
     context.buffer_data_with_array_buffer_view(
         WebGl2RenderingContext::ARRAY_BUFFER,
-        &array,
+        &buffer.array(),
         WebGl2RenderingContext::STATIC_DRAW,
     );
-    context.vertex_attrib_pointer_with_i32(index, 3, WebGl2RenderingContext::FLOAT, false, 0, 0);
-    context.enable_vertex_attrib_array(index);
+    context.vertex_attrib_pointer_with_i32(index, buffer.size(), buffer.data_type(), false, 0, 0);
+//    context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&JsValue::NULL));
+//    context.enable_vertex_attrib_array(index);
 }
+
+pub fn buffer_indices(context: &WebGl2RenderingContext,
+                      buffer: &BufferU32,
+) {
+    let id = context.create_buffer().ok_or("failed to create buffer").unwrap();
+    context.bind_buffer(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, Some(&id));
+    context.buffer_data_with_array_buffer_view(
+        WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER,
+        &buffer.array(),
+        WebGl2RenderingContext::STATIC_DRAW,
+    );
+}
+
 
 #[wasm_bindgen(start)]
 pub fn start() -> Result<(), JsValue> {
@@ -73,21 +80,50 @@ pub fn start() -> Result<(), JsValue> {
 
     simple_shader.bind(&context);
 
-//    let vert_array = create_buffer_f32(&[-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0]);
-    let vert_array = BufferF32::new(&[-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0]);
-    let color_array = create_buffer_f32(&[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]);
 
-    bind_buffer(&context,0, &vert_array);
-    bind_buffer(&context,1, &color_array);
+//    let vert_buffer = BufferF32::new(&[-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0], 3);
+//    let color_buffer = BufferF32::new(&[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0], 3);
+//    bind_buffer(&context, 0, WebGl2RenderingContext::ARRAY_BUFFER, &vert_buffer);
+//    bind_buffer(&context, 1, WebGl2RenderingContext::ARRAY_BUFFER, &color_buffer);
+
+    let vao = context.create_vertex_array().unwrap();
+    context.bind_vertex_array(Some(&vao));
+
+    let vert_buffer = BufferF32::new(&[
+        -0.5, 0.5, 0.0,
+        -0.5, -0.5, 0.0,
+        0.5, -0.5, 0.0,
+        0.5, 0.5, 0.0,
+    ], 3);
+    let color_buffer = BufferF32::new(&[
+        1.0, 0.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, 0.0, 1.0,
+        1.0, 1.0, 1.0,
+    ], 3);
+
+    let index_buffer = BufferU32::new(&[
+        0, 1, 3,
+        3, 1, 2,
+    ]);
+
+
+    buffer_array(&context, 0, &vert_buffer);
+    buffer_array(&context, 1, &color_buffer);
+    buffer_indices(&context, &index_buffer);
 
     context.clear_color(0.0, 0.0, 0.0, 1.0);
     context.clear(WebGl2RenderingContext::COLOR_BUFFER_BIT);
 
-    context.draw_arrays(
-        WebGl2RenderingContext::TRIANGLES,
-        0,
-        (vert_array.length() / 3) as i32,
-    );
+    context.bind_vertex_array(Some(&vao));
+    context.enable_vertex_attrib_array(0);
+    context.enable_vertex_attrib_array(1);
+    context.draw_elements_with_i32(WebGl2RenderingContext::TRIANGLES,
+                                   index_buffer.array().length() as i32,
+                                   WebGl2RenderingContext::UNSIGNED_INT,
+                                   0);
+    context.disable_vertex_attrib_array(0);
+    context.disable_vertex_attrib_array(1);
 
     simple_shader.unbind(&context);
 

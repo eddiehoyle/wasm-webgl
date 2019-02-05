@@ -84,8 +84,19 @@ __exports.__widl_instanceof_WebGL2RenderingContext = function(idx) {
     return getObject(idx) instanceof WebGL2RenderingContext ? 1 : 0;
 };
 
+__exports.__widl_f_bind_vertex_array_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).bindVertexArray(getObject(arg1));
+};
+
 __exports.__widl_f_buffer_data_with_array_buffer_view_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
     getObject(arg0).bufferData(arg1, getObject(arg2), arg3);
+};
+
+__exports.__widl_f_create_vertex_array_WebGL2RenderingContext = function(arg0) {
+
+    const val = getObject(arg0).createVertexArray();
+    return isLikeNone(val) ? 0 : addHeapObject(val);
+
 };
 
 __exports.__widl_f_attach_shader_WebGL2RenderingContext = function(arg0, arg1, arg2) {
@@ -134,8 +145,12 @@ __exports.__widl_f_create_shader_WebGL2RenderingContext = function(arg0, arg1) {
 
 };
 
-__exports.__widl_f_draw_arrays_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
-    getObject(arg0).drawArrays(arg1, arg2, arg3);
+__exports.__widl_f_disable_vertex_attrib_array_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).disableVertexAttribArray(arg1);
+};
+
+__exports.__widl_f_draw_elements_with_i32_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4) {
+    getObject(arg0).drawElements(arg1, arg2, arg3, arg4);
 };
 
 __exports.__widl_f_enable_vertex_attrib_array_WebGL2RenderingContext = function(arg0, arg1) {
@@ -219,10 +234,6 @@ __exports.__wbg_subarray_f8934b42fec7ca7c = function(arg0, arg1, arg2) {
     return addHeapObject(getObject(arg0).subarray(arg1, arg2));
 };
 
-__exports.__wbg_length_f560b71a2392427d = function(arg0) {
-    return getObject(arg0).length;
-};
-
 __exports.__wbg_newnoargs_43c5f57b77232284 = function(arg0, arg1) {
     let varg0 = getStringFromWasm(arg0, arg1);
     return addHeapObject(new Function(varg0));
@@ -237,6 +248,18 @@ __exports.__wbg_call_7ac13208e630ddeb = function(arg0, arg1, exnptr) {
         view[exnptr / 4 + 1] = addHeapObject(e);
 
     }
+};
+
+__exports.__wbg_new_66f4398a61abb238 = function(arg0) {
+    return addHeapObject(new Uint32Array(getObject(arg0)));
+};
+
+__exports.__wbg_subarray_e15f66ea564a1778 = function(arg0, arg1, arg2) {
+    return addHeapObject(getObject(arg0).subarray(arg1, arg2));
+};
+
+__exports.__wbg_length_72b6e1924524141e = function(arg0) {
+    return getObject(arg0).length;
 };
 
 __exports.__wbg_instanceof_Memory_ed5a1f7b9a0e05a3 = function(idx) {
