@@ -9,40 +9,18 @@
         return wasm.alloc(arg0);
     };
 
-    const heap = new Array(32);
-
-    heap.fill(undefined);
-
-    heap.push(undefined, null, true, false);
-
-    let stack_pointer = 32;
-
-    function addBorrowedObject(obj) {
-        if (stack_pointer == 1) throw new Error('out of js stack');
-        heap[--stack_pointer] = obj;
-        return stack_pointer;
-    }
-    /**
-    * @param {any} arg0
-    * @returns {void}
-    */
-    __exports.read_image = function(arg0) {
-        try {
-            return wasm.read_image(addBorrowedObject(arg0));
-
-        } finally {
-            heap[stack_pointer++] = undefined;
-
-        }
-
-    };
-
     /**
     * @returns {void}
     */
     __exports.start = function() {
         return wasm.start();
     };
+
+    const heap = new Array(32);
+
+    heap.fill(undefined);
+
+    heap.push(undefined, null, true, false);
 
 function getObject(idx) { return heap[idx]; }
 
@@ -110,12 +88,20 @@ __exports.__widl_f_get_context_HTMLCanvasElement = function(arg0, arg1, arg2, ex
     }
 };
 
-__exports.__widl_f_width_ImageData = function(arg0) {
-    return getObject(arg0).width;
+__exports.__widl_f_new_Image = function(exnptr) {
+    try {
+        return addHeapObject(new Image());
+    } catch (e) {
+        const view = getUint32Memory();
+        view[exnptr / 4] = 1;
+        view[exnptr / 4 + 1] = addHeapObject(e);
+
+    }
 };
 
-__exports.__widl_f_height_ImageData = function(arg0) {
-    return getObject(arg0).height;
+__exports.__widl_f_set_src_HTMLImageElement = function(arg0, arg1, arg2) {
+    let varg1 = getStringFromWasm(arg1, arg2);
+    getObject(arg0).src = varg1;
 };
 
 __exports.__widl_instanceof_WebGL2RenderingContext = function(idx) {
@@ -137,7 +123,7 @@ __exports.__widl_f_create_vertex_array_WebGL2RenderingContext = function(arg0) {
 
 };
 
-__exports.__widl_f_tex_image_2d_with_u32_and_u32_and_image_data_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, exnptr) {
+__exports.__widl_f_tex_image_2d_with_u32_and_u32_and_html_image_element_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, exnptr) {
     try {
         getObject(arg0).texImage2D(arg1, arg2, arg3, arg4, arg5, getObject(arg6));
     } catch (e) {
@@ -146,6 +132,10 @@ __exports.__widl_f_tex_image_2d_with_u32_and_u32_and_image_data_WebGL2RenderingC
         view[exnptr / 4 + 1] = addHeapObject(e);
 
     }
+};
+
+__exports.__widl_f_active_texture_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).activeTexture(arg1);
 };
 
 __exports.__widl_f_attach_shader_WebGL2RenderingContext = function(arg0, arg1, arg2) {
@@ -159,6 +149,10 @@ __exports.__widl_f_bind_attrib_location_WebGL2RenderingContext = function(arg0, 
 
 __exports.__widl_f_bind_buffer_WebGL2RenderingContext = function(arg0, arg1, arg2) {
     getObject(arg0).bindBuffer(arg1, getObject(arg2));
+};
+
+__exports.__widl_f_bind_texture_WebGL2RenderingContext = function(arg0, arg1, arg2) {
+    getObject(arg0).bindTexture(arg1, getObject(arg2));
 };
 
 __exports.__widl_f_clear_WebGL2RenderingContext = function(arg0, arg1) {
@@ -190,6 +184,13 @@ __exports.__widl_f_create_program_WebGL2RenderingContext = function(arg0) {
 __exports.__widl_f_create_shader_WebGL2RenderingContext = function(arg0, arg1) {
 
     const val = getObject(arg0).createShader(arg1);
+    return isLikeNone(val) ? 0 : addHeapObject(val);
+
+};
+
+__exports.__widl_f_create_texture_WebGL2RenderingContext = function(arg0) {
+
+    const val = getObject(arg0).createTexture();
     return isLikeNone(val) ? 0 : addHeapObject(val);
 
 };
@@ -251,9 +252,17 @@ __exports.__widl_f_link_program_WebGL2RenderingContext = function(arg0, arg1) {
     getObject(arg0).linkProgram(getObject(arg1));
 };
 
+__exports.__widl_f_pixel_storei_WebGL2RenderingContext = function(arg0, arg1, arg2) {
+    getObject(arg0).pixelStorei(arg1, arg2);
+};
+
 __exports.__widl_f_shader_source_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
     let varg2 = getStringFromWasm(arg2, arg3);
     getObject(arg0).shaderSource(getObject(arg1), varg2);
+};
+
+__exports.__widl_f_tex_parameteri_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
+    getObject(arg0).texParameteri(arg1, arg2, arg3);
 };
 
 __exports.__widl_f_use_program_WebGL2RenderingContext = function(arg0, arg1) {
@@ -273,10 +282,6 @@ __exports.__widl_f_document_Window = function(arg0) {
     const val = getObject(arg0).document;
     return isLikeNone(val) ? 0 : addHeapObject(val);
 
-};
-
-__exports.__widl_f_log_1_ = function(arg0) {
-    console.log(getObject(arg0));
 };
 
 __exports.__wbg_new_f49b071a6847bcff = function(arg0) {

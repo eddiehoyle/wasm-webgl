@@ -3,11 +3,10 @@
 #![allow(unused_variables)]
 
 extern crate wasm_webgl_common;
-#[macro_use]
-extern crate resource;
 
 use wasm_webgl_common::shader::Shader;
 use wasm_webgl_common::buffer::*;
+use wasm_webgl_common::texture::*;
 
 use js_sys::WebAssembly;
 use wasm_bindgen::prelude::*;
@@ -17,9 +16,7 @@ use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
 use std::mem;
 use std::fs::File;
-use resource::*;
-use std::borrow::Cow;
-use std::env;
+use std::rc::Rc;
 
 pub fn buffer_array(context: &WebGl2RenderingContext,
                     index: u32,
@@ -58,33 +55,33 @@ pub fn alloc(len: usize) -> *mut u8 {
     ptr
 }
 
-#[wasm_bindgen]
-pub fn read_image(img: &ImageData) {
-    console::log_1(&JsValue::from(format!("{:?}x{:?}", img.width(), img.height())));
-
-    let document = web_sys::window().unwrap().document().unwrap();
-    let canvas = document.get_element_by_id("canvas").unwrap();
-    let canvas: web_sys::HtmlCanvasElement = canvas.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
-
-    // TODO: This looks like it's on the right path
-    // Try pass in the correct context instead of re-fetching
-    // Set up texture bind etc as before
-
-    let context = canvas
-        .get_context("webgl2")
-        .unwrap().unwrap()
-        .dyn_into::<WebGl2RenderingContext>().unwrap();
-
-    context.tex_image_2d_with_u32_and_u32_and_image_data(
-        WebGl2RenderingContext::TEXTURE_2D,
-        0,
-        WebGl2RenderingContext::RGBA as i32,
-        WebGl2RenderingContext::RGBA,
-        WebGl2RenderingContext::UNSIGNED_BYTE,
-        &img,
-    ).unwrap();
-    console::log_1(&JsValue::from("image loaded i thikn?"));
-}
+//#[wasm_bindgen]
+//pub fn read_image(img: &ImageData) {
+//    console::log_1(&JsValue::from(format!("{:?}x{:?}", img.width(), img.height())));
+//
+//    let document = web_sys::window().unwrap().document().unwrap();
+//    let canvas = document.get_element_by_id("canvas").unwrap();
+//    let canvas: web_sys::HtmlCanvasElement = canvas.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
+//
+//    // TODO: This looks like it's on the right path
+//    // Try pass in the correct context instead of re-fetching
+//    // Set up texture bind etc as before
+//
+//    let context = canvas
+//        .get_context("webgl2")
+//        .unwrap().unwrap()
+//        .dyn_into::<WebGl2RenderingContext>().unwrap();
+//
+//    context.tex_image_2d_with_u32_and_u32_and_image_data(
+//        WebGl2RenderingContext::TEXTURE_2D,
+//        0,
+//        WebGl2RenderingContext::RGBA as i32,
+//        WebGl2RenderingContext::RGBA,
+//        WebGl2RenderingContext::UNSIGNED_BYTE,
+//        &img,
+//    ).unwrap();
+//    console::log_1(&JsValue::from("image loaded i thikn?"));
+//}
 
 
 #[wasm_bindgen(start)]
@@ -126,39 +123,7 @@ pub fn start() -> Result<(), JsValue> {
 
     simple_shader.bind(&context);
 
-//    env::set_var("CARGO_MANIFEST_DIR", format!("{}/{}", env!("CARGO_MANIFEST_DIR"), "dist"));
-    let cmd = env!("CARGO_MANIFEST_DIR");
-    console::log_1(&JsValue::from(cmd));
-
-
-
-    let img = resource!("dist/cat.png");
-//    Luint textureID;
-//    glGenTextures( 1, &textureID );
-//    glBindTexture(GL_TEXTURE_2D, textureID);
-
-//    let texture_id = context.create_texture().unwrap();
-//    context.bind_texture(WebGl2RenderingContext::TEXTURE_2D, Some(&texture_id));
-
-//    context.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
-//        WebGl2RenderingContext::TEXTURE_2D,
-//        0,
-//        WebGl2RenderingContext::RGBA as i32,
-//        270,
-//        270,
-//        0,
-//        WebGl2RenderingContext::RGBA,
-//        WebGl2RenderingContext::UNSIGNED_BYTE,
-//        Some(img.to_mut()),
-//    ).unwrap();
-    console::log_1(&JsValue::from("image loaded i thikn?"));
-
-
-
-//    let vert_buffer = BufferF32::new(&[-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0], 3);
-//    let color_buffer = BufferF32::new(&[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0], 3);
-//    bind_buffer(&context, 0, WebGl2RenderingContext::ARRAY_BUFFER, &vert_buffer);
-//    bind_buffer(&context, 1, WebGl2RenderingContext::ARRAY_BUFFER, &color_buffer);
+    load_texture_image(&context, "cat.png");
 
     let vao = context.create_vertex_array().unwrap();
     context.bind_vertex_array(Some(&vao));
