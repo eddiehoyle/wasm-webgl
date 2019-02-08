@@ -4,6 +4,42 @@ use wasm_bindgen::JsCast;
 use web_sys::{WebGl2RenderingContext, console};
 use std::collections::HashMap;
 
+pub struct BufferU8 {
+    array: js_sys::Uint8Array,
+    size: i32, // The size of each 'chunk' in the buffer
+    data_type: u32,
+}
+
+impl BufferU8 {
+
+    pub fn new(slice: &[u8], size: i32) -> Self {
+        let mem = wasm_bindgen::memory()
+            .dyn_into::<WebAssembly::Memory>()
+            .unwrap()
+            .buffer();
+        let slice_location = slice.as_ptr() as u32 / 4;
+        BufferU8{ array: js_sys::Uint8Array::new(&mem)
+            .subarray(slice_location, slice_location + slice.len() as u32),
+            size,
+            data_type: WebGl2RenderingContext::UNSIGNED_BYTE,
+        }
+    }
+
+    pub fn array(&self) -> &js_sys::Uint8Array {
+        &self.array
+    }
+
+    pub fn data_type(&self) -> u32 {
+        self.data_type
+    }
+
+    pub fn size(&self) -> i32 {
+        self.size
+    }
+}
+
+
+
 pub struct BufferF32 {
     array: js_sys::Float32Array,
     size: i32, // The size of each 'chunk' in the buffer

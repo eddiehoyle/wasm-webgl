@@ -9,12 +9,51 @@ use wasm_bindgen::prelude::*;
 use web_sys::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::JsValue;
-use web_sys::WebGlRenderingContext as GL;
+use web_sys::WebGl2RenderingContext as GL;
+
+
+fn init_canvas() -> Result<HtmlCanvasElement, JsValue> {
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
+
+    let canvas: HtmlCanvasElement = document.create_element("canvas").unwrap().dyn_into()?;
+
+    canvas.set_width(320);
+    canvas.set_height(240);
+
+    let app_div: HtmlElement = match document.get_element_by_id("simple_app") {
+        Some(container) => container.dyn_into()?,
+        None => {
+            let app_div = document.create_element("div")?;
+            app_div.set_id("simple_app");
+            app_div.dyn_into()?
+        }
+    };
+
+    app_div.style().set_property("display", "flex")?;
+    app_div.append_child(&canvas)?;
+
+    Ok(canvas)
+}
+
+fn create_webgl_context() -> Result<WebGl2RenderingContext, JsValue> {
+    let canvas = init_canvas()?;
+
+    let gl: WebGl2RenderingContext = canvas
+        .get_context("webgl2")?
+        .unwrap()
+        .dyn_into::<WebGl2RenderingContext>()?;
+
+    gl.clear_color(0.0, 0.0, 0.0, 1.0);
+    gl.enable(GL::DEPTH_TEST);
+
+    Ok(gl)
+}
 
 /// Used to run the application from the web
 #[wasm_bindgen]
 pub struct WebClient {
-//    gl: Rc<WebGlRenderingContext>,
+    gl: Rc<WebGl2RenderingContext>,
 }
 #[wasm_bindgen]
 impl WebClient {
@@ -23,42 +62,16 @@ impl WebClient {
     #[wasm_bindgen(constructor)]
     pub fn new() -> WebClient {
 
-        let window = web_sys::window().unwrap();
-        let document = window.document().unwrap();
-//
-//        let canvas: HtmlCanvasElement = document.create_element("canvas").unwrap().dyn_into()?;
-//
-//        canvas.set_width(CANVAS_WIDTH as u32);
-//        canvas.set_height(CANVAS_HEIGHT as u32);
-//
-//        let app_div: HtmlElement = match document.get_element_by_id(APP_DIV_ID) {
-//            Some(container) => container.dyn_into()?,
-//            None => {
-//                let app_div = document.create_element("div")?;
-//                app_div.set_id(APP_DIV_ID);
-//                app_div.dyn_into()?
-//            }
-//        };
-//
-//        app_div.style().set_property("display", "flex")?;
-//        app_div.append_child(&canvas)?;
-//
-//        Ok(canvas)
+        let gl = Rc::new(create_webgl_context().unwrap());
 
-//        let app = Rc::new(App::new());
-//
-//        let gl = Rc::new(create_webgl_context(Rc::clone(&app)).unwrap());
-//        append_controls(Rc::clone(&app)).expect("Append controls");
-//
-//        let renderer = WebRenderer::new(&gl);
-//
-        WebClient {}
+        WebClient { gl }
     }
 
     /// Start our WebGL Water application. `index.html` will call this function in order
     /// to begin rendering.
     pub fn start(&self) -> Result<(), JsValue> {
-//        let gl = &self.gl;
+        console::log_1(&JsValue::from("Starting web client..."));
+        let gl = &self.gl;
 //
         Ok(())
     }

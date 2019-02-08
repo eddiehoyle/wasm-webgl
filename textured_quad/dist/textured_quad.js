@@ -88,6 +88,10 @@ __exports.__widl_f_get_context_HTMLCanvasElement = function(arg0, arg1, arg2, ex
     }
 };
 
+__exports.__widl_f_set_onload_HTMLElement = function(arg0, arg1) {
+    getObject(arg0).onload = getObject(arg1);
+};
+
 __exports.__widl_f_new_Image = function(exnptr) {
     try {
         return addHeapObject(new Image());
@@ -121,6 +125,17 @@ __exports.__widl_f_create_vertex_array_WebGL2RenderingContext = function(arg0) {
     const val = getObject(arg0).createVertexArray();
     return isLikeNone(val) ? 0 : addHeapObject(val);
 
+};
+
+__exports.__widl_f_tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_array_buffer_view_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, exnptr) {
+    try {
+        getObject(arg0).texImage2D(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, getObject(arg9));
+    } catch (e) {
+        const view = getUint32Memory();
+        view[exnptr / 4] = 1;
+        view[exnptr / 4 + 1] = addHeapObject(e);
+
+    }
 };
 
 __exports.__widl_f_tex_image_2d_with_u32_and_u32_and_html_image_element_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, exnptr) {
@@ -252,10 +267,6 @@ __exports.__widl_f_link_program_WebGL2RenderingContext = function(arg0, arg1) {
     getObject(arg0).linkProgram(getObject(arg1));
 };
 
-__exports.__widl_f_pixel_storei_WebGL2RenderingContext = function(arg0, arg1, arg2) {
-    getObject(arg0).pixelStorei(arg1, arg2);
-};
-
 __exports.__widl_f_shader_source_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
     let varg2 = getStringFromWasm(arg2, arg3);
     getObject(arg0).shaderSource(getObject(arg1), varg2);
@@ -284,6 +295,10 @@ __exports.__widl_f_document_Window = function(arg0) {
 
 };
 
+__exports.__widl_f_log_1_ = function(arg0) {
+    console.log(getObject(arg0));
+};
+
 __exports.__wbg_new_f49b071a6847bcff = function(arg0) {
     return addHeapObject(new Float32Array(getObject(arg0)));
 };
@@ -306,6 +321,14 @@ __exports.__wbg_call_7ac13208e630ddeb = function(arg0, arg1, exnptr) {
         view[exnptr / 4 + 1] = addHeapObject(e);
 
     }
+};
+
+__exports.__wbg_new_a999fd72f5304154 = function(arg0) {
+    return addHeapObject(new Uint8Array(getObject(arg0)));
+};
+
+__exports.__wbg_subarray_1cd21da1682e7d1e = function(arg0, arg1, arg2) {
+    return addHeapObject(getObject(arg0).subarray(arg1, arg2));
 };
 
 __exports.__wbg_new_66f4398a61abb238 = function(arg0) {
@@ -427,6 +450,8 @@ getUint32Memory()[len_ptr / 4] = WASM_VECTOR_LEN;
 return ptr;
 };
 
+__exports.__wbindgen_cb_forget = dropObject;
+
 __exports.__wbindgen_memory = function() { return addHeapObject(wasm.memory); };
 
 function takeObject(idx) {
@@ -436,6 +461,27 @@ function takeObject(idx) {
 }
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
+
+__exports.__wbindgen_closure_wrapper142 = function(a, b, _ignored) {
+    const f = wasm.__wbg_function_table.get(9);
+    const d = wasm.__wbg_function_table.get(10);
+    const cb = function() {
+        this.cnt++;
+        try {
+            return f(this.a, b);
+
+        } finally {
+            if (this.cnt-- == 1) d(this.a, b);
+
+        }
+
+    };
+    cb.a = a;
+    cb.cnt = 1;
+    let real = cb.bind(cb);
+    real.original = cb;
+    return addHeapObject(real);
+};
 
 __exports.__wbindgen_throw = function(ptr, len) {
     throw new Error(getStringFromWasm(ptr, len));

@@ -16,7 +16,10 @@ use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
 use std::mem;
 use std::fs::File;
+
+use std::cell::RefCell;
 use std::rc::Rc;
+use std::borrow::BorrowMut;
 
 pub fn buffer_array(context: &WebGl2RenderingContext,
                     index: u32,
@@ -30,8 +33,6 @@ pub fn buffer_array(context: &WebGl2RenderingContext,
         WebGl2RenderingContext::STATIC_DRAW,
     );
     context.vertex_attrib_pointer_with_i32(index, buffer.size(), buffer.data_type(), false, 0, 0);
-//    context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&JsValue::NULL));
-//    context.enable_vertex_attrib_array(index);
 }
 
 pub fn buffer_indices(context: &WebGl2RenderingContext,
@@ -95,35 +96,39 @@ pub fn start() -> Result<(), JsValue> {
         .unwrap()
         .dyn_into::<WebGl2RenderingContext>()?;
 
+    let context = Rc::new(context);
+
     let vertex_source = r#"#version 300 es
         precision mediump float;
+
         in vec3 position;
-        in vec3 color;
-        out vec3 vColor;
+        in vec2 texcoord;
+        out vec2 v_texcoord;
+
         void main() {
-            vColor = color;
+            v_texcoord = texcoord;
             gl_Position = vec4(position, 1.0);
         }
     "#;
     let fragment_source = r#"#version 300 es
         precision mediump float;
-        in vec3 vColor;
+
+        in vec2 v_texcoord;
+        uniform sampler2D u_texture;
         out vec4 outColor;
+
         void main() {
-            outColor = vec4(vColor, 1.0);
+            outColor = texture(u_texture, vec2(v_texcoord.x + 1.0, v_texcoord.y + 1.0));
         }
     "#;
-    let simple_attributes: HashMap<u32, &str> = [(0, "position"), (1, "color")].iter().cloned().collect();
-
+    let simple_attributes: HashMap<u32, &str> = [(0, "position"), (1, "texcoord")].iter().cloned().collect();
     let simple_shader = Shader::new(&context,
                                     &"simple",
                                     &vertex_source,
                                     &fragment_source,
                                     simple_attributes)?;
 
-    simple_shader.bind(&context);
 
-    load_texture_image(&context, "cat.png");
 
     let vao = context.create_vertex_array().unwrap();
     context.bind_vertex_array(Some(&vao));
@@ -134,12 +139,18 @@ pub fn start() -> Result<(), JsValue> {
         0.5, -0.5, 0.0,
         0.5, 0.5, 0.0,
     ], 3);
-    let color_buffer = BufferF32::new(&[
-        1.0, 0.0, 0.0,
-        0.0, 1.0, 0.0,
-        0.0, 0.0, 1.0,
-        1.0, 1.0, 1.0,
-    ], 3);
+//    let color_buffer = BufferF32::new(&[
+//        1.0, 0.0, 0.0,
+//        0.0, 1.0, 0.0,
+//        0.0, 0.0, 1.0,
+//        1.0, 1.0, 1.0,
+//    ], 3);
+    let texcoord_buffer = BufferF32::new(&[
+        0.0, 0.0,
+        0.0, 1.0,
+        1.0, 1.0,
+        1.0, 0.0,
+    ], 2);
 
     let index_buffer = BufferU32::new(&[
         0, 1, 3,
@@ -147,25 +158,86 @@ pub fn start() -> Result<(), JsValue> {
     ]);
 
 
-    buffer_array(&context, 0, &vert_buffer);
-    buffer_array(&context, 1, &color_buffer);
     buffer_indices(&context, &index_buffer);
+    buffer_array(&context, 0, &vert_buffer);
+    buffer_array(&context, 1, &texcoord_buffer);
+
+    // ========================================================================================== //
+
+    let temp_texture = BufferU8::new(&[0, 0, 255, 255], 2);
+    let texture = context.create_texture().unwrap();
+    context.bind_texture(WebGl2RenderingContext::TEXTURE_2D, Some(&texture));
+    context.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_array_buffer_view(
+        WebGl2RenderingContext::TEXTURE_2D,
+        0,
+        WebGl2RenderingContext::RGBA as i32,
+        1,
+        1,
+        0,
+        WebGl2RenderingContext::RGBA,
+        WebGl2RenderingContext::UNSIGNED_BYTE,
+        Some(&temp_texture.array()),
+    ).expect("Texture image 2d");
+
+    // ========================================================================================== //
+
+    console::log_1(&JsValue::from("Loading image..."));
+    let image = Rc::new(RefCell::new(HtmlImageElement::new().unwrap()));
+    let image_clone = Rc::clone(&image);
+    let context_clone = Rc::clone(&context);
+
+    let onload = Closure::wrap(Box::new(move || {
+        console::log_1(&JsValue::from("Image loaded"));
+        let texture = context_clone.create_texture().unwrap();
+        context_clone.active_texture(WebGl2RenderingContext::TEXTURE0);
+        context_clone.bind_texture(WebGl2RenderingContext::TEXTURE_2D, Some(&texture));
+//        context_clone.pixel_storei(WebGl2RenderingContext::UNPACK_FLIP_Y_WEBGL, 1);
+        context_clone.tex_parameteri(WebGl2RenderingContext::TEXTURE_2D,
+                                     WebGl2RenderingContext::TEXTURE_MIN_FILTER,
+                                     WebGl2RenderingContext::NEAREST as i32);
+        context_clone.tex_parameteri(WebGl2RenderingContext::TEXTURE_2D,
+                                     WebGl2RenderingContext::TEXTURE_MAG_FILTER,
+                                     WebGl2RenderingContext::NEAREST as i32);
+        context_clone.tex_image_2d_with_u32_and_u32_and_html_image_element(
+            WebGl2RenderingContext::TEXTURE_2D,
+            0,
+            WebGl2RenderingContext::RGBA as i32,
+            WebGl2RenderingContext::RGBA,
+            WebGl2RenderingContext::UNSIGNED_BYTE,
+            &image_clone.borrow(),
+        ).expect("Texture image 2d");
 
 
-    context.clear_color(0.0, 0.0, 0.0, 1.0);
-    context.clear(WebGl2RenderingContext::COLOR_BUFFER_BIT);
 
-    context.bind_vertex_array(Some(&vao));
-    context.enable_vertex_attrib_array(0);
-    context.enable_vertex_attrib_array(1);
-    context.draw_elements_with_i32(WebGl2RenderingContext::TRIANGLES,
-                                   index_buffer.array().length() as i32,
-                                   WebGl2RenderingContext::UNSIGNED_INT,
-                                   0);
-    context.disable_vertex_attrib_array(0);
-    context.disable_vertex_attrib_array(1);
 
-    simple_shader.unbind(&context);
+        simple_shader.bind(&context_clone);
+
+        context_clone.clear_color(0.0, 0.0, 0.0, 1.0);
+        context_clone.clear(WebGl2RenderingContext::COLOR_BUFFER_BIT);
+
+        context_clone.bind_vertex_array(Some(&vao));
+        context_clone.enable_vertex_attrib_array(0);
+        context_clone.enable_vertex_attrib_array(1);
+        context_clone.active_texture(WebGl2RenderingContext::TEXTURE0);
+        context_clone.draw_elements_with_i32(WebGl2RenderingContext::TRIANGLES,
+                                       index_buffer.array().length() as i32,
+                                       WebGl2RenderingContext::UNSIGNED_INT,
+                                       0);
+        context_clone.disable_vertex_attrib_array(0);
+        context_clone.disable_vertex_attrib_array(1);
+
+        simple_shader.unbind(&context_clone);
+
+
+
+    }) as Box<dyn Fn()>);
+
+    let image = image.borrow();
+    image.set_onload(Some(onload.as_ref().unchecked_ref()));
+    image.set_src("cat.png");
+    onload.forget();
+
+    // ========================================================================================== //
 
     Ok(())
 }

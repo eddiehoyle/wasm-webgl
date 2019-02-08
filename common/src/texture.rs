@@ -27,7 +27,6 @@ pub fn load_texture_image(context: &WebGl2RenderingContext, src: &str) {
     ).expect("Texture image 2d");
 
 //    image.set_onload(Some(onload.as_ref().unchecked_ref()));
-    image.set_src(src);
 
 //    onload.forget();
 
