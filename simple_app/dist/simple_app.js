@@ -121,6 +121,26 @@ __exports.__widl_f_style_HTMLElement = function(arg0) {
     return addHeapObject(getObject(arg0).style);
 };
 
+__exports.__widl_f_set_onload_HTMLElement = function(arg0, arg1) {
+    getObject(arg0).onload = getObject(arg1);
+};
+
+__exports.__widl_f_new_Image = function(exnptr) {
+    try {
+        return addHeapObject(new Image());
+    } catch (e) {
+        const view = getUint32Memory();
+        view[exnptr / 4] = 1;
+        view[exnptr / 4 + 1] = addHeapObject(e);
+
+    }
+};
+
+__exports.__widl_f_set_src_HTMLImageElement = function(arg0, arg1, arg2) {
+    let varg1 = getStringFromWasm(arg1, arg2);
+    getObject(arg0).src = varg1;
+};
+
 __exports.__widl_f_append_child_Node = function(arg0, arg1, exnptr) {
     try {
         return addHeapObject(getObject(arg0).appendChild(getObject(arg1)));
@@ -136,12 +156,46 @@ __exports.__widl_instanceof_WebGL2RenderingContext = function(idx) {
     return getObject(idx) instanceof WebGL2RenderingContext ? 1 : 0;
 };
 
+__exports.__widl_f_tex_image_2d_with_u32_and_u32_and_html_image_element_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, exnptr) {
+    try {
+        getObject(arg0).texImage2D(arg1, arg2, arg3, arg4, arg5, getObject(arg6));
+    } catch (e) {
+        const view = getUint32Memory();
+        view[exnptr / 4] = 1;
+        view[exnptr / 4 + 1] = addHeapObject(e);
+
+    }
+};
+
+__exports.__widl_f_active_texture_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).activeTexture(arg1);
+};
+
+__exports.__widl_f_bind_texture_WebGL2RenderingContext = function(arg0, arg1, arg2) {
+    getObject(arg0).bindTexture(arg1, getObject(arg2));
+};
+
 __exports.__widl_f_clear_color_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4) {
     getObject(arg0).clearColor(arg1, arg2, arg3, arg4);
 };
 
+__exports.__widl_f_create_texture_WebGL2RenderingContext = function(arg0) {
+
+    const val = getObject(arg0).createTexture();
+    return isLikeNone(val) ? 0 : addHeapObject(val);
+
+};
+
 __exports.__widl_f_enable_WebGL2RenderingContext = function(arg0, arg1) {
     getObject(arg0).enable(arg1);
+};
+
+__exports.__widl_f_pixel_storei_WebGL2RenderingContext = function(arg0, arg1, arg2) {
+    getObject(arg0).pixelStorei(arg1, arg2);
+};
+
+__exports.__widl_f_tex_parameteri_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
+    getObject(arg0).texParameteri(arg1, arg2, arg3);
 };
 
 __exports.__widl_instanceof_Window = function(idx) {
@@ -278,6 +332,8 @@ getUint32Memory()[len_ptr / 4] = WASM_VECTOR_LEN;
 return ptr;
 };
 
+__exports.__wbindgen_cb_forget = dropObject;
+
 function takeObject(idx) {
     const ret = getObject(idx);
     dropObject(idx);
@@ -286,12 +342,32 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
+__exports.__wbindgen_closure_wrapper114 = function(a, b, _ignored) {
+    const f = wasm.__wbg_function_table.get(2);
+    const d = wasm.__wbg_function_table.get(3);
+    const cb = function() {
+        this.cnt++;
+        try {
+            return f(this.a, b);
+
+        } finally {
+            if (this.cnt-- == 1) d(this.a, b);
+
+        }
+
+    };
+    cb.a = a;
+    cb.cnt = 1;
+    let real = cb.bind(cb);
+    real.original = cb;
+    return addHeapObject(real);
+};
+
 function freeWebClient(ptr) {
 
     wasm.__wbg_webclient_free(ptr);
 }
 /**
-* Used to run the application from the web
 */
 class WebClient {
 
@@ -302,22 +378,24 @@ class WebClient {
     }
 
     /**
-    * Create a new web client
     * @returns {}
     */
     constructor() {
         this.ptr = wasm.webclient_new();
     }
     /**
-    * Start our WebGL Water application. `index.html` will call this function in order
-    * to begin rendering.
+    * @returns {void}
+    */
+    member() {
+        return wasm.webclient_member(this.ptr);
+    }
+    /**
     * @returns {void}
     */
     start() {
         return wasm.webclient_start(this.ptr);
     }
     /**
-    * Update our simulation
     * @param {number} arg0
     * @returns {void}
     */
@@ -325,7 +403,6 @@ class WebClient {
         return wasm.webclient_update(this.ptr, arg0);
     }
     /**
-    * Render the scene. `index.html` will call this once every requestAnimationFrame
     * @returns {void}
     */
     render() {
