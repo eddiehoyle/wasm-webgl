@@ -7,12 +7,14 @@ use wasm_bindgen::JsValue;
 use web_sys::WebGl2RenderingContext as GL;
 use std::borrow::Borrow;
 use std::collections::HashMap;
+use std::cmp::Ordering;
 
 type UniformMap = HashMap<String, WebGlUniformLocation>;
 type AttributeMap = HashMap<String, i32>;
 
 pub mod manager;
 
+#[derive(Ord, PartialOrd, Debug, PartialEq, Eq, Hash, Copy, Clone)]
 pub enum ShaderType {
     Simple,
 }
@@ -54,12 +56,12 @@ impl Shader {
         })
     }
 
-    pub fn bind(&self, context: &GL) {
-        context.use_program(Some(&self.program))
+    pub fn program_(&self) -> &WebGlProgram {
+        &self.program
     }
 
-    pub fn unbind(&self, context: &GL) {
-        context.use_program(Some(&WebGlProgram::from(JsValue::NULL)));
+    pub fn type_(&self) -> ShaderType {
+        self.type_
     }
 }
 
