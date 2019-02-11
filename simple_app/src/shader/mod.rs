@@ -11,10 +11,17 @@ use std::collections::HashMap;
 type UniformMap = HashMap<String, WebGlUniformLocation>;
 type AttributeMap = HashMap<String, i32>;
 
+pub mod manager;
+
+pub enum ShaderType {
+    Simple,
+}
+
 pub struct Shader  {
     program: WebGlProgram,
     uniforms: UniformMap,
     attributes: AttributeMap,
+    type_: ShaderType,
 }
 
 impl Shader {
@@ -22,7 +29,8 @@ impl Shader {
                vert_source: &str,
                frag_source: &str,
                attributes: &[&str],
-               uniforms: &[&str]) -> Result<Shader, JsValue> {
+               uniforms: &[&str],
+               type_: ShaderType, ) -> Result<Shader, JsValue> {
         let vert_shader = compile_shader(&gl, GL::VERTEX_SHADER, vert_source)?;
         let frag_shader = compile_shader(&gl, GL::FRAGMENT_SHADER, frag_source)?;
         let program = link_program(&gl, &vert_shader, &frag_shader)?;
@@ -31,7 +39,7 @@ impl Shader {
         for uniform in uniforms {
             uniforms_map.insert(uniform.to_string(),
                                 gl.get_uniform_location(&program, uniform)
-                                    .expect(&format!(r#"Uniform '{}' not found"#, uniform)));
+                                    .expect(&format!("Uniform '{}' not found", uniform)));
         }
 
         let mut attributes_map: AttributeMap = HashMap::new();
@@ -39,7 +47,11 @@ impl Shader {
             attributes_map.insert(attribute.to_string(),
                                   gl.get_attrib_location(&program, attribute));
         }
-        Ok(Shader { program, uniforms: uniforms_map, attributes: attributes_map })
+        Ok(Shader { program,
+            uniforms: uniforms_map,
+            attributes: attributes_map,
+            type_: type_,
+        })
     }
 
     pub fn bind(&self, context: &GL) {
@@ -65,7 +77,7 @@ fn compile_shader(gl: &GL,
         Ok(shader)
     } else {
         Err(gl.get_shader_info_log(&shader)
-              .unwrap_or_else(|| "Unknown error compiling shader shader".to_string()))
+            .unwrap_or_else(|| "Unknown error compiling shader shader".to_string()))
     }
 }
 

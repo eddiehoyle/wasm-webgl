@@ -8,3 +8,4 @@ pub mod client;
 mod render;
 mod texture;
 mod app;
+mod shader;
