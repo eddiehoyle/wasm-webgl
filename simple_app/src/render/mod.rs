@@ -16,20 +16,8 @@ impl WebRenderer {
     pub fn new(gl: Rc<GL>) -> WebRenderer {
         console::log_1(&JsValue::from("new WebRenderer"));
 
-        static SIMLPE_VS: &'static str = include_str!("./../../dist/static-vertex.glsl");
-        static SIMPLE_FS: &'static str = include_str!("./../../dist/static-fragment.glsl");
-
         let m = shader::manager::ShaderManager::new();
 
-        let s = shader::Shader::new(gl.borrow(),
-                                    SIMLPE_VS,
-                                    SIMPLE_FS,
-                                    &[],
-                                    &[],
-                                    shader::ShaderType::Simple);
-        if s.is_err() {
-            console::log_1(&JsValue::from(s.err().unwrap()));
-        }
         WebRenderer {}
     }
 }

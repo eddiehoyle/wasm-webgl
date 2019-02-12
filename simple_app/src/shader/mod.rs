@@ -20,7 +20,7 @@ pub enum ShaderType {
 }
 
 pub struct Shader  {
-    program: WebGlProgram,
+    program_: WebGlProgram,
     uniforms: UniformMap,
     attributes: AttributeMap,
     type_: ShaderType,
@@ -49,15 +49,15 @@ impl Shader {
             attributes_map.insert(attribute.to_string(),
                                   gl.get_attrib_location(&program, attribute));
         }
-        Ok(Shader { program,
+        Ok(Shader { program_: program,
             uniforms: uniforms_map,
             attributes: attributes_map,
             type_: type_,
         })
     }
 
-    pub fn program_(&self) -> &WebGlProgram {
-        &self.program
+    pub fn program(&self) -> &WebGlProgram {
+        &self.program_
     }
 
     pub fn type_(&self) -> ShaderType {
