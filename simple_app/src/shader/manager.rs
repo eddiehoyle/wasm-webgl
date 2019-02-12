@@ -14,9 +14,8 @@ use std::cell::Cell;
 use core::borrow::Borrow;
 
 pub struct ShaderManager<'a> {
-    active: Cell<Option<&'a Shader>>,
-//    shaders: Vec<&'a Shader>,
-    shaders: ShaderMap,
+    active: RefCell<Option<&'a Shader>>,
+    shaders: Vec<Shader>,
 }
 
 type ShaderMap = HashMap<ShaderType, Shader>;
@@ -27,38 +26,36 @@ static SIMPLE_FS: &'static str = include_str!("./../../dist/static-fragment.glsl
 impl<'a> ShaderManager<'a> {
     pub fn new(gl: &GL) -> Self {
         console::log_1(&JsValue::from("ShaderManager::new()"));
+        let mut shaders = Vec::new();
 
-        let simple = Shader::new(gl.borrow(),
-                                    SIMLPE_VS,
-                                    SIMPLE_FS,
-                                    &[],
-                                    &[],
-                                    ShaderType::Simple);
+        let shader = Shader::new(gl.borrow(),
+                                 SIMLPE_VS,
+                                 SIMPLE_FS,
+                                 &[],
+                                 &[],
+                                 ShaderType::Simple);
+        match shader {
+            Ok(shader) => shaders.push(shader),
+            Err(e) => console::log_1(&JsValue::from(format!("ERROR compiling '{:?}' shader!\n{:?}",
+                                                            ShaderType::Simple,
+                                                            &JsValue::from(e)))),
+        }
 
-        let mut shaders = HashMap::new();
-        shaders.insert(ShaderType::Simple, Shader::new(gl.borrow(),
-                                                       SIMLPE_VS,
-                                                       SIMPLE_FS,
-                                                       &[],
-                                                       &[], ShaderType::Simple ));
-
-        let shaders = [simple].iter().collect();
-
-        ShaderManager{ active: Cell::new(None), shaders }
+        ShaderManager{ active: RefCell::new(None), shaders }
     }
 
-    pub fn bind(&mut self, gl: &GL, type_: &ShaderType) {
+    pub fn bind(&'a self, gl: &GL, type_: ShaderType) {
         if let Some(shader) = self.shaders.iter().find(
-            |shader|{ shader.type_() == *type_ }) {
+            |shader|{ shader.type_() == type_ }) {
             console::log_1(&JsValue::from(format!("Binding shader: {:?}", type_)));
             gl.use_program(Some(shader.program()));
-            self.active = Cell::new(Some(shader));
+            *self.active.borrow_mut() = Some(shader);
         }
     }
 
-    pub fn unbind(&self, gl: &GL) {
-        if let Some(shader) = self.active.get() {
-            console::log_1(&JsValue::from(format!("Binding shader: {:?}", shader.type_())));
+    pub fn unbind(&'a self, gl: &GL) {
+        if let Some(shader) = *self.active.borrow() {
+            console::log_1(&JsValue::from(format!("Uninding shader: {:?}", shader.type_())));
             gl.use_program(Some(&WebGlProgram::from(JsValue::NULL)));
         }
     }
