@@ -13,17 +13,17 @@ use std::collections::HashMap;
 use std::cell::Cell;
 use core::borrow::Borrow;
 
-pub struct ShaderManager<'a> {
-    active: RefCell<Option<&'a Shader>>,
-    shaders: Vec<Shader>,
-}
-
 type ShaderMap = HashMap<ShaderType, Shader>;
 
 static SIMLPE_VS: &'static str = include_str!("./../../dist/static-vertex.glsl");
 static SIMPLE_FS: &'static str = include_str!("./../../dist/static-fragment.glsl");
 
-impl<'a> ShaderManager<'a> {
+pub struct ShaderManager {
+    active: RefCell<Option<ShaderType>>,
+    shaders: Vec<Shader>,
+}
+
+impl ShaderManager {
     pub fn new(gl: &GL) -> Self {
         info!("New ShaderManager");
         let mut shaders = Vec::new();
@@ -36,26 +36,24 @@ impl<'a> ShaderManager<'a> {
                                  ShaderType::Simple);
         match shader {
             Ok(shader) => shaders.push(shader),
-            Err(e) => console::log_1(&JsValue::from(format!("ERROR compiling '{:?}' shader!\n{:?}",
-                                                            ShaderType::Simple,
-                                                            &JsValue::from(e)))),
+            Err(e) => error!("ERROR compiling '{:?}' shader!\n{:?}", ShaderType::Simple, e),
         }
 
         ShaderManager{ active: RefCell::new(None), shaders }
     }
 
-    pub fn bind(&'a self, gl: &GL, type_: ShaderType) {
+    pub fn bind(&self, gl: &GL, type_: ShaderType) {
         if let Some(shader) = self.shaders.iter().find(
             |shader|{ shader.type_() == type_ }) {
             info!("Binding shader: {:?}", type_);
             gl.use_program(Some(shader.program()));
-            *self.active.borrow_mut() = Some(shader);
+            *self.active.borrow_mut() = Some(shader.type_().clone())
         }
     }
 
-    pub fn unbind(&'a self, gl: &GL) {
-        if let Some(shader) = *self.active.borrow() {
-            info!("Uninding shader: {:?}", shader.type_());
+    pub fn unbind(&self, gl: &GL) {
+        if let Some(type_) = *self.active.borrow() {
+            info!("Uninding shader: {:?}", type_);
             gl.use_program(Some(&WebGlProgram::from(JsValue::NULL)));
         }
     }

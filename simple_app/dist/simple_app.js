@@ -179,6 +179,10 @@ __exports.__widl_f_bind_texture_WebGL2RenderingContext = function(arg0, arg1, ar
     getObject(arg0).bindTexture(arg1, getObject(arg2));
 };
 
+__exports.__widl_f_clear_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).clear(arg1);
+};
+
 __exports.__widl_f_clear_color_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4) {
     getObject(arg0).clearColor(arg1, arg2, arg3, arg4);
 };
@@ -283,8 +287,8 @@ __exports.__widl_f_tex_parameteri_WebGL2RenderingContext = function(arg0, arg1, 
     getObject(arg0).texParameteri(arg1, arg2, arg3);
 };
 
-__exports.__widl_f_use_program_WebGL2RenderingContext = function(arg0, arg1) {
-    getObject(arg0).useProgram(getObject(arg1));
+__exports.__widl_f_viewport_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4) {
+    getObject(arg0).viewport(arg1, arg2, arg3, arg4);
 };
 
 __exports.__widl_instanceof_Window = function(idx) {
@@ -312,10 +316,6 @@ __exports.__widl_f_error_4_ = function(arg0, arg1, arg2, arg3) {
 
 __exports.__widl_f_info_4_ = function(arg0, arg1, arg2, arg3) {
     console.info(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3));
-};
-
-__exports.__widl_f_log_1_ = function(arg0) {
-    console.log(getObject(arg0));
 };
 
 __exports.__widl_f_log_4_ = function(arg0, arg1, arg2, arg3) {
@@ -451,7 +451,7 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper334 = function(a, b, _ignored) {
+__exports.__wbindgen_closure_wrapper303 = function(a, b, _ignored) {
     const f = wasm.__wbg_function_table.get(2);
     const d = wasm.__wbg_function_table.get(3);
     const cb = function() {

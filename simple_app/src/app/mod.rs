@@ -17,7 +17,7 @@ impl App {
     pub fn msg(&self, msg: Msg) {
         match msg {
             Msg::Tick(delta) => {
-//                console::log_1(&JsValue::from(format!("Msg::Tick({})", delta)))
+                debug!("Tick: {}", delta);
             }
         }
     }

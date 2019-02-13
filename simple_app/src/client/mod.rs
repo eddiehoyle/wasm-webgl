@@ -30,7 +30,7 @@ impl WebClient {
 
         let gl = Rc::new(dom::create_webgl_context().unwrap());
         let app = App::new();
-        let render = WebRenderer::new(gl.clone());
+        let render = WebRenderer::new(&gl);
         WebClient { gl, app, render }
     }
 
@@ -45,6 +45,7 @@ impl WebClient {
     }
 
     pub fn render(&mut self) {
+        self.render.render(&self.gl);
 
     }
 }
