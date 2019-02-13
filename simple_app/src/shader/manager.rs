@@ -25,7 +25,7 @@ static SIMPLE_FS: &'static str = include_str!("./../../dist/static-fragment.glsl
 
 impl<'a> ShaderManager<'a> {
     pub fn new(gl: &GL) -> Self {
-        console::log_1(&JsValue::from("ShaderManager::new()"));
+        info!("New ShaderManager");
         let mut shaders = Vec::new();
 
         let shader = Shader::new(gl.borrow(),
@@ -47,7 +47,7 @@ impl<'a> ShaderManager<'a> {
     pub fn bind(&'a self, gl: &GL, type_: ShaderType) {
         if let Some(shader) = self.shaders.iter().find(
             |shader|{ shader.type_() == type_ }) {
-            console::log_1(&JsValue::from(format!("Binding shader: {:?}", type_)));
+            info!("Binding shader: {:?}", type_);
             gl.use_program(Some(shader.program()));
             *self.active.borrow_mut() = Some(shader);
         }
@@ -55,7 +55,7 @@ impl<'a> ShaderManager<'a> {
 
     pub fn unbind(&'a self, gl: &GL) {
         if let Some(shader) = *self.active.borrow() {
-            console::log_1(&JsValue::from(format!("Uninding shader: {:?}", shader.type_())));
+            info!("Uninding shader: {:?}", shader.type_());
             gl.use_program(Some(&WebGlProgram::from(JsValue::NULL)));
         }
     }

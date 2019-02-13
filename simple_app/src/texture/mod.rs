@@ -41,6 +41,6 @@ fn onload(gl: Rc<GL>, image: Rc<HtmlImageElement>, unit: u32) -> Box<Fn()> {
             GL::UNSIGNED_BYTE,
             &image.borrow(),
         ).expect("Texture image 2d");
-        console::log_1(&JsValue::from("image loaded!"));
+        info!("Image loaded!");
     })
 }

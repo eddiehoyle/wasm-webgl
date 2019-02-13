@@ -33,6 +33,7 @@ impl Shader {
                attributes: &[&str],
                uniforms: &[&str],
                type_: ShaderType, ) -> Result<Shader, JsValue> {
+
         let vert_shader = compile_shader(&gl, GL::VERTEX_SHADER, vert_source)?;
         let frag_shader = compile_shader(&gl, GL::FRAGMENT_SHADER, frag_source)?;
         let program = link_program(&gl, &vert_shader, &frag_shader)?;

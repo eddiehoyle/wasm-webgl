@@ -14,7 +14,7 @@ pub struct WebRenderer {
 
 impl WebRenderer {
     pub fn new(gl: Rc<GL>) -> WebRenderer {
-        console::log_1(&JsValue::from("new WebRenderer"));
+        info!("New WebRenderer");
 
         let m = shader::manager::ShaderManager::new(&gl);
         m.bind(&gl, shader::ShaderType::Simple);

@@ -4,6 +4,10 @@
 
 extern crate wasm_bindgen;
 
+#[macro_use]
+extern crate log;
+extern crate wasm_logger;
+
 pub mod client;
 mod render;
 mod texture;

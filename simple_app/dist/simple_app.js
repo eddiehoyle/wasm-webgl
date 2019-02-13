@@ -298,8 +298,32 @@ __exports.__widl_f_document_Window = function(arg0) {
 
 };
 
+__exports.__widl_f_debug_4_ = function(arg0, arg1, arg2, arg3) {
+    console.debug(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3));
+};
+
+__exports.__widl_f_error_1_ = function(arg0) {
+    console.error(getObject(arg0));
+};
+
+__exports.__widl_f_error_4_ = function(arg0, arg1, arg2, arg3) {
+    console.error(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3));
+};
+
+__exports.__widl_f_info_4_ = function(arg0, arg1, arg2, arg3) {
+    console.info(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3));
+};
+
 __exports.__widl_f_log_1_ = function(arg0) {
     console.log(getObject(arg0));
+};
+
+__exports.__widl_f_log_4_ = function(arg0, arg1, arg2, arg3) {
+    console.log(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3));
+};
+
+__exports.__widl_f_warn_4_ = function(arg0, arg1, arg2, arg3) {
+    console.warn(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3));
 };
 
 __exports.__wbg_newnoargs_43c5f57b77232284 = function(arg0, arg1) {
@@ -427,7 +451,7 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper383 = function(a, b, _ignored) {
+__exports.__wbindgen_closure_wrapper334 = function(a, b, _ignored) {
     const f = wasm.__wbg_function_table.get(2);
     const d = wasm.__wbg_function_table.get(3);
     const cb = function() {
@@ -467,12 +491,6 @@ class WebClient {
     */
     constructor() {
         this.ptr = wasm.webclient_new();
-    }
-    /**
-    * @returns {void}
-    */
-    member() {
-        return wasm.webclient_member(this.ptr);
     }
     /**
     * @returns {void}

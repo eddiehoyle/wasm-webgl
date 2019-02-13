@@ -25,19 +25,17 @@ impl WebClient {
 
     #[wasm_bindgen(constructor)]
     pub fn new() -> WebClient {
-        console::log_1(&JsValue::from("New WebClient"));
+        wasm_logger::init(wasm_logger::Config::new(log::Level::Debug));
+        info!("New WebClient");
+
         let gl = Rc::new(dom::create_webgl_context().unwrap());
         let app = App::new();
         let render = WebRenderer::new(gl.clone());
         WebClient { gl, app, render }
     }
 
-    pub fn member(&self) {
-        console::log_1(&JsValue::from("member"));
-    }
-
     pub fn start(&self) -> Result<(), JsValue> {
-        console::log_1(&JsValue::from("Starting web client..."));
+        info!("WebClient starting...");
         texture::Texture::new( &self.gl, "cat.png", 0);
         Ok(())
     }
