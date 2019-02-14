@@ -10,6 +10,7 @@ use std::borrow::Borrow;
 use crate::shader::manager::ShaderManager;
 use crate::shader::ShaderType;
 
+pub mod traits;
 
 pub struct WebRenderer {
     shader_manager: ShaderManager,
@@ -26,7 +27,7 @@ impl WebRenderer {
     }
 
     pub fn render(&self, gl: &GL) {
-        info!("Rendering...!");
+        debug!("Rendering...!");
         gl.clear_color(0.53, 0.8, 0.98, 1.);
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
         gl.viewport(0, 0, 320, 240);

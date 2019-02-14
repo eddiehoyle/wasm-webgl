@@ -13,3 +13,4 @@ mod render;
 mod texture;
 mod app;
 mod shader;
+mod prim;

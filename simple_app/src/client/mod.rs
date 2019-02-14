@@ -12,6 +12,7 @@ mod dom;
 use crate::texture;
 use crate::render::WebRenderer;
 use crate::app::{App, Msg};
+use crate::prim::Rectangle;
 
 #[wasm_bindgen]
 pub struct WebClient {
@@ -31,6 +32,9 @@ impl WebClient {
         let gl = Rc::new(dom::create_webgl_context().unwrap());
         let app = App::new();
         let render = WebRenderer::new(&gl);
+
+        let rect = Rectangle::new(&gl);
+
         WebClient { gl, app, render }
     }
 

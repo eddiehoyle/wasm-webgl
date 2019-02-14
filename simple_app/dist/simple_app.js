@@ -156,6 +156,13 @@ __exports.__widl_instanceof_WebGL2RenderingContext = function(idx) {
     return getObject(idx) instanceof WebGL2RenderingContext ? 1 : 0;
 };
 
+__exports.__widl_f_create_vertex_array_WebGL2RenderingContext = function(arg0) {
+
+    const val = getObject(arg0).createVertexArray();
+    return isLikeNone(val) ? 0 : addHeapObject(val);
+
+};
+
 __exports.__widl_f_tex_image_2d_with_u32_and_u32_and_html_image_element_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, exnptr) {
     try {
         getObject(arg0).texImage2D(arg1, arg2, arg3, arg4, arg5, getObject(arg6));
@@ -326,6 +333,10 @@ __exports.__widl_f_warn_4_ = function(arg0, arg1, arg2, arg3) {
     console.warn(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3));
 };
 
+__exports.__wbg_new_f49b071a6847bcff = function(arg0) {
+    return addHeapObject(new Float32Array(getObject(arg0)));
+};
+
 __exports.__wbg_newnoargs_43c5f57b77232284 = function(arg0, arg1) {
     let varg0 = getStringFromWasm(arg0, arg1);
     return addHeapObject(new Function(varg0));
@@ -340,6 +351,18 @@ __exports.__wbg_call_7ac13208e630ddeb = function(arg0, arg1, exnptr) {
         view[exnptr / 4 + 1] = addHeapObject(e);
 
     }
+};
+
+__exports.__wbg_new_66f4398a61abb238 = function(arg0) {
+    return addHeapObject(new Uint32Array(getObject(arg0)));
+};
+
+__exports.__wbg_instanceof_Memory_ed5a1f7b9a0e05a3 = function(idx) {
+    return getObject(idx) instanceof WebAssembly.Memory ? 1 : 0;
+};
+
+__exports.__wbg_buffer_efdca35786c3eb75 = function(arg0) {
+    return addHeapObject(getObject(arg0).buffer);
 };
 
 __exports.__wbindgen_object_clone_ref = function(idx) {
@@ -443,6 +466,8 @@ return ptr;
 
 __exports.__wbindgen_cb_forget = dropObject;
 
+__exports.__wbindgen_memory = function() { return addHeapObject(wasm.memory); };
+
 function takeObject(idx) {
     const ret = getObject(idx);
     dropObject(idx);
@@ -451,7 +476,7 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper303 = function(a, b, _ignored) {
+__exports.__wbindgen_closure_wrapper305 = function(a, b, _ignored) {
     const f = wasm.__wbg_function_table.get(2);
     const d = wasm.__wbg_function_table.get(3);
     const cb = function() {
