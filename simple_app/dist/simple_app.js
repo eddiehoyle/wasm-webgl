@@ -156,6 +156,14 @@ __exports.__widl_instanceof_WebGL2RenderingContext = function(idx) {
     return getObject(idx) instanceof WebGL2RenderingContext ? 1 : 0;
 };
 
+__exports.__widl_f_bind_vertex_array_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).bindVertexArray(getObject(arg1));
+};
+
+__exports.__widl_f_buffer_data_with_array_buffer_view_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
+    getObject(arg0).bufferData(arg1, getObject(arg2), arg3);
+};
+
 __exports.__widl_f_create_vertex_array_WebGL2RenderingContext = function(arg0) {
 
     const val = getObject(arg0).createVertexArray();
@@ -182,6 +190,10 @@ __exports.__widl_f_attach_shader_WebGL2RenderingContext = function(arg0, arg1, a
     getObject(arg0).attachShader(getObject(arg1), getObject(arg2));
 };
 
+__exports.__widl_f_bind_buffer_WebGL2RenderingContext = function(arg0, arg1, arg2) {
+    getObject(arg0).bindBuffer(arg1, getObject(arg2));
+};
+
 __exports.__widl_f_bind_texture_WebGL2RenderingContext = function(arg0, arg1, arg2) {
     getObject(arg0).bindTexture(arg1, getObject(arg2));
 };
@@ -196,6 +208,13 @@ __exports.__widl_f_clear_color_WebGL2RenderingContext = function(arg0, arg1, arg
 
 __exports.__widl_f_compile_shader_WebGL2RenderingContext = function(arg0, arg1) {
     getObject(arg0).compileShader(getObject(arg1));
+};
+
+__exports.__widl_f_create_buffer_WebGL2RenderingContext = function(arg0) {
+
+    const val = getObject(arg0).createBuffer();
+    return isLikeNone(val) ? 0 : addHeapObject(val);
+
 };
 
 __exports.__widl_f_create_program_WebGL2RenderingContext = function(arg0) {
@@ -219,8 +238,20 @@ __exports.__widl_f_create_texture_WebGL2RenderingContext = function(arg0) {
 
 };
 
+__exports.__widl_f_disable_vertex_attrib_array_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).disableVertexAttribArray(arg1);
+};
+
+__exports.__widl_f_draw_elements_with_i32_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4) {
+    getObject(arg0).drawElements(arg1, arg2, arg3, arg4);
+};
+
 __exports.__widl_f_enable_WebGL2RenderingContext = function(arg0, arg1) {
     getObject(arg0).enable(arg1);
+};
+
+__exports.__widl_f_enable_vertex_attrib_array_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).enableVertexAttribArray(arg1);
 };
 
 __exports.__widl_f_get_attrib_location_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
@@ -294,6 +325,14 @@ __exports.__widl_f_tex_parameteri_WebGL2RenderingContext = function(arg0, arg1, 
     getObject(arg0).texParameteri(arg1, arg2, arg3);
 };
 
+__exports.__widl_f_use_program_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).useProgram(getObject(arg1));
+};
+
+__exports.__widl_f_vertex_attrib_pointer_with_i32_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
+    getObject(arg0).vertexAttribPointer(arg1, arg2, arg3, arg4 !== 0, arg5, arg6);
+};
+
 __exports.__widl_f_viewport_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4) {
     getObject(arg0).viewport(arg1, arg2, arg3, arg4);
 };
@@ -337,6 +376,10 @@ __exports.__wbg_new_f49b071a6847bcff = function(arg0) {
     return addHeapObject(new Float32Array(getObject(arg0)));
 };
 
+__exports.__wbg_subarray_f8934b42fec7ca7c = function(arg0, arg1, arg2) {
+    return addHeapObject(getObject(arg0).subarray(arg1, arg2));
+};
+
 __exports.__wbg_newnoargs_43c5f57b77232284 = function(arg0, arg1) {
     let varg0 = getStringFromWasm(arg0, arg1);
     return addHeapObject(new Function(varg0));
@@ -355,6 +398,14 @@ __exports.__wbg_call_7ac13208e630ddeb = function(arg0, arg1, exnptr) {
 
 __exports.__wbg_new_66f4398a61abb238 = function(arg0) {
     return addHeapObject(new Uint32Array(getObject(arg0)));
+};
+
+__exports.__wbg_subarray_e15f66ea564a1778 = function(arg0, arg1, arg2) {
+    return addHeapObject(getObject(arg0).subarray(arg1, arg2));
+};
+
+__exports.__wbg_length_72b6e1924524141e = function(arg0) {
+    return getObject(arg0).length;
 };
 
 __exports.__wbg_instanceof_Memory_ed5a1f7b9a0e05a3 = function(idx) {
@@ -476,7 +527,7 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper305 = function(a, b, _ignored) {
+__exports.__wbindgen_closure_wrapper348 = function(a, b, _ignored) {
     const f = wasm.__wbg_function_table.get(2);
     const d = wasm.__wbg_function_table.get(3);
     const cb = function() {

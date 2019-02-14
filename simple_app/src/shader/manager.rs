@@ -39,6 +39,8 @@ impl ShaderManager {
             Err(e) => error!("ERROR compiling '{:?}' shader!\n{:?}", ShaderType::Simple, e),
         }
 
+        shader.attributes();
+
         ShaderManager{ active: RefCell::new(None), shaders }
     }
 

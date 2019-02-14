@@ -11,17 +11,35 @@ pub struct Rectangle {
     indices: js_sys::Uint32Array,
     vertices: js_sys::Float32Array,
     vao: WebGlVertexArrayObject,
-
 }
+
+
 impl Rectangle {
-    pub fn new(gl: &GL) -> Self {
+    pub fn new(gl: &GL, indices: &[u32], vertices: &[f32]) -> Self {
         let f_mem = wasm_bindgen::memory().dyn_into::<WebAssembly::Memory>().unwrap().buffer();
         let i_mem = wasm_bindgen::memory().dyn_into::<WebAssembly::Memory>().unwrap().buffer();
-        info!("New Rectangle!");
-        Rectangle { x: 0, y: 0,
-            indices: js_sys::Uint32Array::new(&f_mem),
-            vertices: js_sys::Float32Array::new(&i_mem),
-            vao: gl.create_vertex_array().unwrap() }
+        let indices_location = indices.as_ptr() as u32 / 4;
+        let vertices_location = vertices.as_ptr() as u32 / 4;
+        let indices = js_sys::Uint32Array::new(&f_mem).subarray(indices_location, indices_location + indices.len() as u32);
+        let vertices = js_sys::Float32Array::new(&f_mem).subarray(vertices_location, vertices_location + vertices.len() as u32);
+        debug!("New Rectangle!");
+        let rect = Rectangle { x: 0, y: 0,
+            indices,
+            vertices,
+            vao: gl.create_vertex_array().unwrap() };
+        rect.bind(gl);
+        rect.buffer_indices_u32(gl);
+        rect.buffer_data_f32(gl);
+        rect
+    }
+}
+
+impl Draw for Rectangle {
+    fn draw(&self, gl: &GL) {
+        gl.draw_elements_with_i32(GL::TRIANGLES,
+                                  self.indices.length() as i32,
+                                  GL::UNSIGNED_INT,
+                                  0);
     }
 }
 
@@ -46,6 +64,6 @@ impl Buffer for Rectangle {
             &self.vertices,
             GL::STATIC_DRAW,
         );
-        gl.vertex_attrib_pointer_with_i32(0, 2, GL::FLOAT, false, 0, 0);
+        gl.vertex_attrib_pointer_with_i32(0, 3, GL::FLOAT, false, 0, 0);
     }
 }

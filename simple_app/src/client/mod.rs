@@ -33,8 +33,6 @@ impl WebClient {
         let app = App::new();
         let render = WebRenderer::new(&gl);
 
-        let rect = Rectangle::new(&gl);
-
         WebClient { gl, app, render }
     }
 

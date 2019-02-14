@@ -64,6 +64,12 @@ impl Shader {
     pub fn type_(&self) -> ShaderType {
         self.type_
     }
+
+    pub fn attributes(&self) {
+        for val in self.attributes.values() {
+            info!("value: {:?}", val);
+        }
+    }
 }
 
 fn compile_shader(gl: &GL,
