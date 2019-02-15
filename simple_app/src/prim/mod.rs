@@ -15,14 +15,29 @@ pub struct Rectangle {
 
 
 impl Rectangle {
-    pub fn new(gl: &GL, indices: &[u32], vertices: &[f32]) -> Self {
+    pub fn new(gl: &GL) -> Self {
+
+        let indices : [u32; 6] = [
+            0, 1, 3,
+            3, 1, 2,
+        ];
+        let vertices : [f32; 12] = [
+            -0.5, 0.5, 0.0,
+            -0.5, -0.5, 0.0,
+            0.5, -0.5, 0.0,
+            0.5, 0.5, 0.0,
+        ];
+
         let f_mem = wasm_bindgen::memory().dyn_into::<WebAssembly::Memory>().unwrap().buffer();
         let i_mem = wasm_bindgen::memory().dyn_into::<WebAssembly::Memory>().unwrap().buffer();
         let indices_location = indices.as_ptr() as u32 / 4;
         let vertices_location = vertices.as_ptr() as u32 / 4;
-        let indices = js_sys::Uint32Array::new(&f_mem).subarray(indices_location, indices_location + indices.len() as u32);
-        let vertices = js_sys::Float32Array::new(&f_mem).subarray(vertices_location, vertices_location + vertices.len() as u32);
+        let indices = js_sys::Uint32Array::new(&f_mem)
+            .subarray(indices_location, indices_location + indices.len() as u32);
+        let vertices = js_sys::Float32Array::new(&f_mem)
+            .subarray(vertices_location, vertices_location + vertices.len() as u32);
         debug!("New Rectangle!");
+
         let rect = Rectangle { x: 0, y: 0,
             indices,
             vertices,

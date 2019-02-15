@@ -23,18 +23,7 @@ impl WebRenderer {
     pub fn new(gl: &GL) -> WebRenderer {
         info!("New WebRenderer");
 
-        let indices = [
-            0, 1, 3,
-            3, 1, 2,
-        ];
-        let vertices = [
-            -0.5, 0.5, 0.0,
-            -0.5, -0.5, 0.0,
-            0.5, -0.5, 0.0,
-            0.5, 0.5, 0.0,
-        ];
-
-        let rect = Rectangle::new(&gl, &indices, &vertices);
+        let rect = Rectangle::new(&gl);
 
         WebRenderer {shader_manager: ShaderManager::new(&gl), rect}
     }

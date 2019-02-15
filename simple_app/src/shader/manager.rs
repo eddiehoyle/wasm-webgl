@@ -31,7 +31,7 @@ impl ShaderManager {
         let shader = Shader::new(gl.borrow(),
                                  SIMLPE_VS,
                                  SIMPLE_FS,
-                                 &[],
+                                 &["position"],
                                  &[],
                                  ShaderType::Simple);
         match shader {
@@ -39,7 +39,7 @@ impl ShaderManager {
             Err(e) => error!("ERROR compiling '{:?}' shader!\n{:?}", ShaderType::Simple, e),
         }
 
-        shader.attributes();
+        shaders[0].attributes();
 
         ShaderManager{ active: RefCell::new(None), shaders }
     }
@@ -47,7 +47,7 @@ impl ShaderManager {
     pub fn bind(&self, gl: &GL, type_: ShaderType) {
         if let Some(shader) = self.shaders.iter().find(
             |shader|{ shader.type_() == type_ }) {
-            info!("Binding shader: {:?}", type_);
+            debug!("Binding shader: {:?}", type_);
             gl.use_program(Some(shader.program()));
             *self.active.borrow_mut() = Some(shader.type_().clone())
         }
@@ -55,7 +55,7 @@ impl ShaderManager {
 
     pub fn unbind(&self, gl: &GL) {
         if let Some(type_) = *self.active.borrow() {
-            info!("Uninding shader: {:?}", type_);
+            debug!("Uninding shader: {:?}", type_);
             gl.use_program(Some(&WebGlProgram::from(JsValue::NULL)));
         }
     }
