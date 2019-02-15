@@ -39,8 +39,6 @@ impl ShaderManager {
             Err(e) => error!("ERROR compiling '{:?}' shader!\n{:?}", ShaderType::Simple, e),
         }
 
-        shaders[0].attributes();
-
         ShaderManager{ active: RefCell::new(None), shaders }
     }
 
@@ -58,6 +56,14 @@ impl ShaderManager {
             debug!("Uninding shader: {:?}", type_);
             gl.use_program(Some(&WebGlProgram::from(JsValue::NULL)));
         }
+    }
+
+    pub fn active(&self) -> Option<&Shader> {
+        if let Some(type_) = *self.active.borrow() {
+            return self.shaders.iter().find(
+                |shader|{ shader.type_() == type_ })
+        }
+        None
     }
 }
 

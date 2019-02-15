@@ -65,10 +65,12 @@ impl Shader {
         self.type_
     }
 
-    pub fn attributes(&self) {
-        for val in self.attributes.values() {
-            info!("value: {:?}", val);
-        }
+    pub fn uniform(&self, gl: &GL, name: &str) -> Option<&WebGlUniformLocation> {
+        self.uniforms.get(name)
+    }
+
+    pub fn attribute(&self, gl: &GL, name: &str) -> Option<&i32> {
+        self.attributes.get(name)
     }
 }
 

@@ -39,6 +39,10 @@ impl WebRenderer {
         gl.viewport(0, 0, 320, 240);
 
         self.shader_manager.bind(gl,ShaderType::Simple);
+        gl.uniform2i(self.shader_manager.active().unwrap().uniform(gl, "resolution"),
+                     320,
+                     240);
+
         gl.enable_vertex_attrib_array(0);
         self.rect.draw(gl);
         gl.disable_vertex_attrib_array(0);
