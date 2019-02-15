@@ -15,17 +15,24 @@ pub struct Rectangle {
 
 
 impl Rectangle {
-    pub fn new(gl: &GL) -> Self {
+    pub fn new(gl: &GL, width: f32, height: f32) -> Self {
 
         let indices : [u32; 6] = [
             0, 1, 3,
             3, 1, 2,
         ];
+//        let vertices : [f32; 12] = [
+//            -0.5, 0.5, 0.0,
+//            -0.5, -0.5, 0.0,
+//            0.5, -0.5, 0.0,
+//            0.5, 0.5, 0.0,
+//        ];
+
         let vertices : [f32; 12] = [
-            -0.5, 0.5, 0.0,
-            -0.5, -0.5, 0.0,
-            0.5, -0.5, 0.0,
-            0.5, 0.5, 0.0,
+            0.0,   height, 0.0,
+            0.0,   0.0,    0.0,
+            width, 0.0,    0.0,
+            width, height, 0.0,
         ];
 
         let f_mem = wasm_bindgen::memory().dyn_into::<WebAssembly::Memory>().unwrap().buffer();

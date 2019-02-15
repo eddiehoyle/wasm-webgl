@@ -15,8 +15,11 @@ use core::borrow::Borrow;
 
 type ShaderMap = HashMap<ShaderType, Shader>;
 
-static SIMLPE_VS: &'static str = include_str!("./../../dist/static-vertex.glsl");
-static SIMPLE_FS: &'static str = include_str!("./../../dist/static-fragment.glsl");
+static STATIC_VS: &'static str = include_str!("./../../dist/static-vertex.glsl");
+static STATIC_FS: &'static str = include_str!("./../../dist/static-fragment.glsl");
+
+static PERSP_VS: &'static str = include_str!("./../../dist/persp-vertex.glsl");
+static PERSP_FS: &'static str = include_str!("./../../dist/persp-fragment.glsl");
 
 pub struct ShaderManager {
     active: RefCell<Option<ShaderType>>,
@@ -29,14 +32,25 @@ impl ShaderManager {
         let mut shaders = Vec::new();
 
         let shader = Shader::new(gl.borrow(),
-                                 SIMLPE_VS,
-                                 SIMPLE_FS,
+                                 STATIC_VS,
+                                 STATIC_FS,
                                  &["position"],
                                  &[],
                                  ShaderType::Simple);
         match shader {
             Ok(shader) => shaders.push(shader),
             Err(e) => error!("ERROR compiling '{:?}' shader!\n{:?}", ShaderType::Simple, e),
+        }
+
+        let shader = Shader::new(gl.borrow(),
+                                 PERSP_VS,
+                                 PERSP_FS,
+                                 &["aPosition"],
+                                 &["uPerspMatrix"],
+                                 ShaderType::Persp);
+        match shader {
+            Ok(shader) => shaders.push(shader),
+            Err(e) => error!("ERROR compiling '{:?}' shader!\n{:?}", ShaderType::Persp, e),
         }
 
         ShaderManager{ active: RefCell::new(None), shaders }
@@ -51,10 +65,32 @@ impl ShaderManager {
         }
     }
 
+    pub fn enable(&self, gl: &GL) {
+        if let Some(type_) = *self.active.borrow() {
+            let shader = self.shaders.iter().find(
+                |shader|{ shader.type_() == type_ }).unwrap();
+            for attr in shader.attributes(gl).values() {
+                debug!("Enabling vertex attrib: {}", attr);
+                gl.enable_vertex_attrib_array(*attr as u32);
+            }
+        }
+    }
+
     pub fn unbind(&self, gl: &GL) {
         if let Some(type_) = *self.active.borrow() {
-            debug!("Uninding shader: {:?}", type_);
+            debug!("Unbinding shader: {:?}", type_);
             gl.use_program(Some(&WebGlProgram::from(JsValue::NULL)));
+        }
+    }
+
+    pub fn disable(&self, gl: &GL) {
+        if let Some(type_) = *self.active.borrow() {
+            let shader = self.shaders.iter().find(
+                |shader|{ shader.type_() == type_ }).unwrap();
+            for attr in shader.attributes(gl).values() {
+                debug!("Disabling vertex attrib: {}", attr);
+                gl.disable_vertex_attrib_array(*attr as u32);
+            }
         }
     }
 

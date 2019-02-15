@@ -3,6 +3,7 @@
 #![allow(unused_variables)]
 
 extern crate wasm_bindgen;
+extern crate nalgebra_glm;
 
 #[macro_use]
 extern crate log;

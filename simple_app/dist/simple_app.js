@@ -325,10 +325,6 @@ __exports.__widl_f_tex_parameteri_WebGL2RenderingContext = function(arg0, arg1, 
     getObject(arg0).texParameteri(arg1, arg2, arg3);
 };
 
-__exports.__widl_f_uniform2i_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
-    getObject(arg0).uniform2i(getObject(arg1), arg2, arg3);
-};
-
 __exports.__widl_f_use_program_WebGL2RenderingContext = function(arg0, arg1) {
     getObject(arg0).useProgram(getObject(arg1));
 };
@@ -531,7 +527,7 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper359 = function(a, b, _ignored) {
+__exports.__wbindgen_closure_wrapper397 = function(a, b, _ignored) {
     const f = wasm.__wbg_function_table.get(2);
     const d = wasm.__wbg_function_table.get(3);
     const cb = function() {

@@ -17,12 +17,13 @@ pub mod manager;
 #[derive(Ord, PartialOrd, Debug, PartialEq, Eq, Hash, Copy, Clone)]
 pub enum ShaderType {
     Simple,
+    Persp,
 }
 
 pub struct Shader  {
     program_: WebGlProgram,
-    uniforms: UniformMap,
-    attributes: AttributeMap,
+    uniforms_: UniformMap,
+    attributes_: AttributeMap,
     type_: ShaderType,
 }
 
@@ -51,8 +52,8 @@ impl Shader {
                                   gl.get_attrib_location(&program, attribute));
         }
         Ok(Shader { program_: program,
-            uniforms: uniforms_map,
-            attributes: attributes_map,
+            uniforms_: uniforms_map,
+            attributes_: attributes_map,
             type_: type_,
         })
     }
@@ -65,12 +66,8 @@ impl Shader {
         self.type_
     }
 
-    pub fn uniform(&self, gl: &GL, name: &str) -> Option<&WebGlUniformLocation> {
-        self.uniforms.get(name)
-    }
-
-    pub fn attribute(&self, gl: &GL, name: &str) -> Option<&i32> {
-        self.attributes.get(name)
+    pub fn attributes(&self, gl: &GL) -> &AttributeMap {
+        &self.attributes_
     }
 }
 
