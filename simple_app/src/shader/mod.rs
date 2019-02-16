@@ -9,6 +9,8 @@ use std::borrow::Borrow;
 use std::collections::HashMap;
 use std::cmp::Ordering;
 
+use nalgebra_glm as glm;
+
 type UniformMap = HashMap<String, WebGlUniformLocation>;
 type AttributeMap = HashMap<String, i32>;
 
@@ -66,8 +68,16 @@ impl Shader {
         self.type_
     }
 
-    pub fn attributes(&self, gl: &GL) -> &AttributeMap {
+    pub fn attributes(&self) -> &AttributeMap {
         &self.attributes_
+    }
+
+    pub fn uniforms(&self) -> &UniformMap {
+        &self.uniforms_
+    }
+
+    pub fn uniform(&self, name: &str) -> Option<&WebGlUniformLocation> {
+        self.uniforms_.get(name)
     }
 }
 

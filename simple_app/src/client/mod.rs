@@ -19,6 +19,7 @@ pub struct WebClient {
     gl: Rc<GL>,
     app: App,
     render: WebRenderer,
+    clock: RefCell<f32>,
 }
 
 #[wasm_bindgen]
@@ -33,7 +34,7 @@ impl WebClient {
         let app = App::new();
         let render = WebRenderer::new(&gl);
 
-        WebClient { gl, app, render }
+        WebClient { gl, app, render, clock: RefCell::new(0.0) }
     }
 
     pub fn start(&self) -> Result<(), JsValue> {
@@ -44,10 +45,14 @@ impl WebClient {
 
     pub fn update(&self, delta: u32) {
         self.app.msg(Msg::Tick(delta as f32 / 1000.));
+        let clock = *self.clock.borrow() + (delta as f32 / 1000.0);
+        *self.clock.borrow_mut() = clock;
     }
 
     pub fn render(&mut self) {
-        self.render.render(&self.gl);
+        self.render.render(&self.gl, &self.clock.borrow());
+//        info!("Clock: {}", self.clock.borrow());
+//        self.render.render(&self.gl, &1.0);
 
     }
 }

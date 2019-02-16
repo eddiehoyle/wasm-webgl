@@ -46,7 +46,7 @@ impl ShaderManager {
                                  PERSP_VS,
                                  PERSP_FS,
                                  &["aPosition"],
-                                 &["uPerspMatrix"],
+                                 &["uProjection", "uModel", "uView"],
                                  ShaderType::Persp);
         match shader {
             Ok(shader) => shaders.push(shader),
@@ -54,6 +54,23 @@ impl ShaderManager {
         }
 
         ShaderManager{ active: RefCell::new(None), shaders }
+    }
+
+    pub fn load_mat4(&self, gl: &GL, name: &str, matrix: &glm::Mat4) {
+        if let Some(type_) = *self.active.borrow() {
+            let shader = self.shaders.iter().find(
+                |shader| { shader.type_() == type_ }).unwrap();
+            match shader.uniforms().get(name) {
+                Some(location) => {
+                    let mut array = [0.0; 16];
+                    array.copy_from_slice(matrix.as_slice());
+                    gl.uniform_matrix4fv_with_f32_array(Some(&location), false, &mut array);
+                },
+                None => {
+                    error!("Uniform '{}' not found for shader: {:?}", name, type_);
+                }
+            }
+        }
     }
 
     pub fn bind(&self, gl: &GL, type_: ShaderType) {
@@ -69,7 +86,7 @@ impl ShaderManager {
         if let Some(type_) = *self.active.borrow() {
             let shader = self.shaders.iter().find(
                 |shader|{ shader.type_() == type_ }).unwrap();
-            for attr in shader.attributes(gl).values() {
+            for attr in shader.attributes().values() {
                 debug!("Enabling vertex attrib: {}", attr);
                 gl.enable_vertex_attrib_array(*attr as u32);
             }
@@ -87,7 +104,7 @@ impl ShaderManager {
         if let Some(type_) = *self.active.borrow() {
             let shader = self.shaders.iter().find(
                 |shader|{ shader.type_() == type_ }).unwrap();
-            for attr in shader.attributes(gl).values() {
+            for attr in shader.attributes().values() {
                 debug!("Disabling vertex attrib: {}", attr);
                 gl.disable_vertex_attrib_array(*attr as u32);
             }

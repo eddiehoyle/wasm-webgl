@@ -182,6 +182,23 @@ __exports.__widl_f_tex_image_2d_with_u32_and_u32_and_html_image_element_WebGL2Re
     }
 };
 
+let cachegetFloat32Memory = null;
+function getFloat32Memory() {
+    if (cachegetFloat32Memory === null || cachegetFloat32Memory.buffer !== wasm.memory.buffer) {
+        cachegetFloat32Memory = new Float32Array(wasm.memory.buffer);
+    }
+    return cachegetFloat32Memory;
+}
+
+function getArrayF32FromWasm(ptr, len) {
+    return getFloat32Memory().subarray(ptr / 4, ptr / 4 + len);
+}
+
+__exports.__widl_f_uniform_matrix4fv_with_f32_array_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4) {
+    let varg3 = getArrayF32FromWasm(arg3, arg4);
+    getObject(arg0).uniformMatrix4fv(getObject(arg1), arg2 !== 0, varg3);
+};
+
 __exports.__widl_f_active_texture_WebGL2RenderingContext = function(arg0, arg1) {
     getObject(arg0).activeTexture(arg1);
 };
@@ -527,7 +544,7 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper397 = function(a, b, _ignored) {
+__exports.__wbindgen_closure_wrapper702 = function(a, b, _ignored) {
     const f = wasm.__wbg_function_table.get(2);
     const d = wasm.__wbg_function_table.get(3);
     const cb = function() {

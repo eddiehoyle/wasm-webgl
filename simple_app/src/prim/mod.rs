@@ -5,6 +5,8 @@ use web_sys::*;
 
 use crate::render::traits::*;
 
+pub mod camera;
+
 pub struct Rectangle {
     x: u32,
     y: u32,
@@ -29,10 +31,10 @@ impl Rectangle {
 //        ];
 
         let vertices : [f32; 12] = [
-            0.0,   height, 0.0,
-            0.0,   0.0,    0.0,
-            width, 0.0,    0.0,
-            width, height, 0.0,
+            0.0,   height, -20.0,
+            0.0,   0.0,    -20.0,
+            width, 0.0,    -20.0,
+            width, height, -20.0,
         ];
 
         let f_mem = wasm_bindgen::memory().dyn_into::<WebAssembly::Memory>().unwrap().buffer();
