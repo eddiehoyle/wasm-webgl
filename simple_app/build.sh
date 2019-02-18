@@ -12,7 +12,7 @@ if [ "$1" == "release" ]; then
     echo "Building release"
     cargo build --target wasm32-unknown-unknown --release
     wasm-bindgen ./target/wasm32-unknown-unknown/release/$PROJECT.wasm --out-dir dist --no-typescript --no-modules
-    wasm-opt -O3 -o dist/optimized.wasm dist/$PROJECT_bg.wasm
+    wasm-opt -Oz -o dist/optimized.wasm ./target/wasm32-unknown-unknown/release/$PROJECT.wasm
     mv dist/optimized.wasm dist/$PROJECT_bg.wasm
 else
     echo "Building debug"

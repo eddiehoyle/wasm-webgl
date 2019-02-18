@@ -8,11 +8,13 @@ use web_sys::WebGl2RenderingContext as GL;
 use std::borrow::Borrow;
 
 mod dom;
+mod controls;
 
 use crate::texture;
 use crate::render::WebRenderer;
 use crate::app::{App, Msg};
-use crate::prim::Rectangle;
+use crate::prim::rect::Rectangle;
+use crate::client::controls::*;
 
 #[wasm_bindgen]
 pub struct WebClient {
@@ -33,6 +35,8 @@ impl WebClient {
         let gl = Rc::new(dom::create_webgl_context().unwrap());
         let app = App::new();
         let render = WebRenderer::new(&gl);
+
+        append_controls(&app).expect("Append controls");
 
         WebClient { gl, app, render, clock: RefCell::new(0.0) }
     }

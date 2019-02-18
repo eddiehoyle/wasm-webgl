@@ -11,7 +11,10 @@ use nalgebra_glm as glm;
 
 use crate::shader::manager::ShaderManager;
 use crate::shader::ShaderType;
-use crate::prim::{Rectangle, camera::Camera};
+use crate::prim::{rect::Rectangle,
+                  camera::Camera,
+                  cube::Cube,
+};
 
 pub mod traits;
 use crate::render::traits::{Draw};
@@ -19,6 +22,7 @@ use crate::render::traits::{Draw};
 pub struct WebRenderer {
     shader_manager: ShaderManager,
     rect: Rectangle,
+    cube: Cube,
     camera: Camera,
 }
 
@@ -27,9 +31,14 @@ impl WebRenderer {
         info!("New WebRenderer");
 
         let rect = Rectangle::new(&gl, 10.0, 20.0);
+        let cube = Cube::new(&gl, 20.0);
         let camera = Camera::new();
 
-        WebRenderer {shader_manager: ShaderManager::new(&gl), rect, camera}
+        WebRenderer {shader_manager: ShaderManager::new(&gl),
+            rect,
+            cube,
+            camera,
+        }
     }
 
     pub fn shaders(&self) -> &ShaderManager {
@@ -38,7 +47,7 @@ impl WebRenderer {
 
     pub fn render(&self, gl: &GL, clock: &f32) {
         let clock = clock * 2.0;
-        debug!("Rendering...!");
+//        debug!("Rendering...!");
         gl.clear_color(0.53, 0.8, 0.98, 1.);
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
         gl.viewport(0, 0, 320, 240);
@@ -46,13 +55,21 @@ impl WebRenderer {
         self.shader_manager.bind(gl,ShaderType::Persp);
         self.shader_manager.enable(gl);
         self.shader_manager.load_mat4(gl, "uProjection", self.camera.projection());
-        self.shader_manager.load_mat4(gl, "uView",  &glm::translate(&glm::identity(), &glm::Vec3::new(0.0, 0.0, -20.0)));
+        self.shader_manager.load_mat4(gl, "uView",  &glm::translate(&glm::identity(), &glm::Vec3::new(0.0, 0.0, -50.0)));
 
-//        let model_matrix = glm::translate(&glm::identity(), &glm::Vec3::new(clock.sin() * 30.0, clock.cos() * -10.0, 0.0));
-        let model_matrix = glm::rotate( &glm::identity(), clock.sin(), &glm::Vec3::new(0.0, 1.0, 0.0));
+//        let model_matrix = glm::rotate(&glm::identity(), clock, &glm::Vec3::new(0.0, 1.0, 0.0));
+//        let model_matrix = glm::translate(&model_matrix,
+//                                          &glm::Vec3::new(-self.rect.width() / 2.0, -self.rect.height() / 2.0, 0.0));
+//        self.shader_manager.load_mat4(gl, "uModel", &model_matrix);
+//        self.rect.draw(gl);
+
+        let t = glm::translate(&glm::identity(),
+                                          &glm::Vec3::new(-self.cube.size() / 2.0, -self.cube.size() / 2.0, -self.cube.size() / 2.0));
+        let r = glm::rotate(&glm::identity(), clock, &glm::Vec3::new(0.0, 1.0, 0.0));
+        let model_matrix = r * t;
         self.shader_manager.load_mat4(gl, "uModel", &model_matrix);
+        self.cube.draw(gl);
 
-        self.rect.draw(gl);
         self.shader_manager.disable(gl);
         self.shader_manager.unbind(gl);
     }

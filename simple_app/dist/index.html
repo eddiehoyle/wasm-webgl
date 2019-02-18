@@ -2,15 +2,27 @@
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
 </head>
-<body>
-<div id="simple_app"> </div>
+<div id="simple_app">
+</div>
+<div id="sliders-div">
+    <!--<form name="sliders-form" oninput="range1value.value = range1.valueAsNumber">-->
+        <!--<label>X:</label>-->
+        <!--<input name="range1" type="range" step="0.01" min="0" max="10" value="1">-->
+        <!--<output name="range1value" for="range1" >1</output>-->
+    <!--</form>-->
+    <!--<form name="sliders-form" oninput="range1value.value = range1.valueAsNumber">-->
+        <!--<label>Y:</label>-->
+        <!--<input name="range1" type="range" step="0.01" min="0" max="10" value="1">-->
+        <!--<output name="range1value"></output>-->
+    <!--</form>-->
+</div>
 <script>
     delete WebAssembly.instantiateStreaming;
 </script>
 <script src='simple_app.js'></script>
 <script>
     window.addEventListener('load', function () {
-        window.wasm_bindgen('/simple_app_bg.wasm')
+        window.wasm_bindgen('simple_app_bg.wasm')
             .then(function () {
                 // // Start our rust application. You can find `WebClient` in `src/lib.rs`
                 const webClient = new window.wasm_bindgen.WebClient()

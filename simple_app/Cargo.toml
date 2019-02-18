@@ -26,14 +26,15 @@ features = [
   'HtmlElement',
   'HtmlImageElement',
   'HtmlInputElement',
-  'InputEvent',
-  'MouseEvent',
+  'HtmlLabelElement',
+#  'InputEvent',
+#  'MouseEvent',
   'Node',
-  'Touch',
-  'TouchEvent',
-  'TouchList',
+#  'Touch',
+#  'TouchEvent',
+#  'TouchList',
   'WebGlBuffer',
-  'WebGlFramebuffer',
+#  'WebGlFramebuffer',
   'WebGlProgram',
   'WebGlRenderbuffer',
   'WebGl2RenderingContext',
@@ -41,10 +42,11 @@ features = [
   'WebGlTexture',
   'WebGlUniformLocation',
   'WebGlVertexArrayObject',
-  'WheelEvent',
+#  'WheelEvent',
   'Window',
   'console',
 ]
 
 [profile.release]
 lto = true
+opt-level = 'z'

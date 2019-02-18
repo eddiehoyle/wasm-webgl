@@ -17,7 +17,7 @@ impl App {
     pub fn msg(&self, msg: Msg) {
         match msg {
             Msg::Tick(delta) => {
-                debug!("Tick: {}", delta);
+//                debug!("Tick: {}", delta);
             }
         }
     }

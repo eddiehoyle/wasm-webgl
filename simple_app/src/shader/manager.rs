@@ -76,7 +76,7 @@ impl ShaderManager {
     pub fn bind(&self, gl: &GL, type_: ShaderType) {
         if let Some(shader) = self.shaders.iter().find(
             |shader|{ shader.type_() == type_ }) {
-            debug!("Binding shader: {:?}", type_);
+//            debug!("Binding shader: {:?}", type_);
             gl.use_program(Some(shader.program()));
             *self.active.borrow_mut() = Some(shader.type_().clone())
         }
@@ -87,7 +87,7 @@ impl ShaderManager {
             let shader = self.shaders.iter().find(
                 |shader|{ shader.type_() == type_ }).unwrap();
             for attr in shader.attributes().values() {
-                debug!("Enabling vertex attrib: {}", attr);
+//                debug!("Enabling vertex attrib: {}", attr);
                 gl.enable_vertex_attrib_array(*attr as u32);
             }
         }
@@ -95,7 +95,7 @@ impl ShaderManager {
 
     pub fn unbind(&self, gl: &GL) {
         if let Some(type_) = *self.active.borrow() {
-            debug!("Unbinding shader: {:?}", type_);
+//            debug!("Unbinding shader: {:?}", type_);
             gl.use_program(Some(&WebGlProgram::from(JsValue::NULL)));
         }
     }
@@ -105,7 +105,7 @@ impl ShaderManager {
             let shader = self.shaders.iter().find(
                 |shader|{ shader.type_() == type_ }).unwrap();
             for attr in shader.attributes().values() {
-                debug!("Disabling vertex attrib: {}", attr);
+//                debug!("Disabling vertex attrib: {}", attr);
                 gl.disable_vertex_attrib_array(*attr as u32);
             }
         }
