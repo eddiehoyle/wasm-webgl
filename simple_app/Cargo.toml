@@ -24,6 +24,7 @@ features = [
   'EventTarget',
   'HtmlCanvasElement',
   'HtmlElement',
+  'HtmlFormElement',
   'HtmlImageElement',
   'HtmlInputElement',
   'HtmlLabelElement',

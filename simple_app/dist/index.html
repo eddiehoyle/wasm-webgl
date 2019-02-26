@@ -4,18 +4,11 @@
 </head>
 <div id="simple_app">
 </div>
-<div id="sliders-div">
-    <!--<form name="sliders-form" oninput="range1value.value = range1.valueAsNumber">-->
-        <!--<label>X:</label>-->
-        <!--<input name="range1" type="range" step="0.01" min="0" max="10" value="1">-->
-        <!--<output name="range1value" for="range1" >1</output>-->
-    <!--</form>-->
-    <!--<form name="sliders-form" oninput="range1value.value = range1.valueAsNumber">-->
-        <!--<label>Y:</label>-->
-        <!--<input name="range1" type="range" step="0.01" min="0" max="10" value="1">-->
-        <!--<output name="range1value"></output>-->
-    <!--</form>-->
+<div id="ui">
+    <div id="x"></div>
+    <div id="y"></div>
 </div>
+<script src="webgl-lessons-ui.js"></script>
 <script>
     delete WebAssembly.instantiateStreaming;
 </script>
@@ -42,6 +35,15 @@
                 render()
             })
     })
+</script>
+<script>
+    "use strict";
+    function update(index) {
+        return function(event, ui) {
+        };
+    }
+    webglLessonsUI.setupSlider("#x", {slide: update(0), min: 0, max: 100, step: 0.1, precision: 1, });
+    webglLessonsUI.setupSlider("#y", {slide: update(0), min: 0, max: 100, step: 0.1, precision: 1, });
 </script>
 </body>
 </html>

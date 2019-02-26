@@ -6,6 +6,7 @@ use web_sys::window;
 use web_sys::Element;
 use web_sys::HtmlElement;
 use web_sys::HtmlLabelElement;
+use web_sys::HtmlFormElement;
 use web_sys::HtmlInputElement;
 use crate::app::App;
 
@@ -59,12 +60,13 @@ fn create_control(app: &App, label: &'static str, min: f32, max: f32, step: f32)
 
 
 fn create_wave_speed_control(app: &App) -> Result<HtmlElement, JsValue> {
-    let handler = move |event: web_sys::Event| {
-        let input_elem: HtmlInputElement = event.target().unwrap().dyn_into().unwrap();
-        let wave_speed : f32 = input_elem.value().parse().unwrap();
-//        app.store.borrow_mut().msg(&Msg::SetWaveSpeed(wave_speed));
-    };
-    let closure = Closure::wrap(Box::new(handler) as Box<FnMut(_)>);
+//    let handler = move |event: web_sys::Event| {
+//        let input_elem: HtmlInputElement = event.target().unwrap().dyn_into().unwrap();
+//        let wave_speed : f32 = input_elem.value().parse().unwrap();
+////        app.store.borrow_mut().msg(&Msg::SetWaveSpeed(wave_speed));
+//    };
+//    let closure = Closure::wrap(Box::new(handler) as Box<FnMut(_)>);
+    let closure = Closure::wrap(Box::new(move |event: web_sys::Event|{}) as Box<FnMut(_)>);
 
     info!("Creating wave speed");
 
@@ -107,21 +109,30 @@ impl Slider {
         slider.set_step(&format!("{}", self.step));
         slider.set_value(&format!("{}", self.start));
 
-        let closure = self.closure;
-        slider.set_oninput(Some(closure.as_ref().unchecked_ref()));
-        closure.forget();
+//        let closure = self.closure;
+//        slider.set_oninput(Some(closure.as_ref().unchecked_ref()));
+//        closure.forget();
 
         let value = document.create_element("output")?;
 
         let oninput = move |event: web_sys::Event| {
             let elem: HtmlInputElement = event.target().unwrap().dyn_into().unwrap();
             let v : f32 = elem.value().parse().unwrap();
-            value.set_inner_html(v.to_string().as_str());
+            let elem: HtmlElement = elem.dyn_into().unwrap();
+//            for child in elem.children() {
+//
+//            }
+
+//            info!("input: {}", v);
+//            value.set_inner_html(v.to_string().as_str());
+
         };
-        let fn_oninput = Closure::wrap(Box::new(oninput) as Box<FnMut(_)>);
+        let closure = Closure::wrap(Box::new(oninput) as Box<FnMut(_)>);
 
+        let container: HtmlFormElement = document.create_element("form")?.dyn_into()?;
+        container.set_oninput(Some(&closure.as_ref().unchecked_ref()));
+        closure.forget();
 
-        let container = document.create_element("form")?;
         container.append_child(&label)?;
         container.append_child(&slider)?;
         container.append_child(&value)?;

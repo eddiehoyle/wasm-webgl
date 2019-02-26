@@ -36,7 +36,7 @@ impl WebClient {
         let app = App::new();
         let render = WebRenderer::new(&gl);
 
-        append_controls(&app).expect("Append controls");
+//        append_controls(&app).expect("Append controls");
 
         WebClient { gl, app, render, clock: RefCell::new(0.0) }
     }
