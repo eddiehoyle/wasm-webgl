@@ -30,7 +30,7 @@ impl WebClient {
     #[wasm_bindgen(constructor)]
     pub fn new() -> WebClient {
         wasm_logger::init(wasm_logger::Config::new(log::Level::Debug));
-        info!("New WebClient");
+        info!("New WebClient!");
 
         let gl = Rc::new(dom::create_webgl_context().unwrap());
         let app = App::new();

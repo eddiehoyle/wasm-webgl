@@ -45,7 +45,9 @@
     <!--webglLessonsUI.setupSlider("#y", {slide: update(0), min: 0, max: 100, step: 0.1, precision: 1, });-->
 <!--</script>-->
 <div id="container">
-    <div id="simple_app"></div>
+    <canvas id="viewport"></canvas>
+    <!--<div id="simple_app">-->
+    <!--</div>-->
     <div id="ui">
         <form class="control">
             <label class="control-label">X</label>
@@ -73,12 +75,12 @@
     .control-label, .control-output {
         font-family: Arial;
         font-size: 16px;
-        margin: 0 5 0 5;
+        margin: 0px 5px 0px 5px;
     }
-    #simple_app {
-        display: inline;
-        float:left;
-    }
+    /*#viewport {*/
+        /*display: inline;*/
+        /*float:left;*/
+    /*}*/
     label {
         display: inline-block;
     }

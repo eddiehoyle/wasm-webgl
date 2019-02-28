@@ -57,18 +57,6 @@ __exports.__widl_f_set_property_CSSStyleDeclaration = function(arg0, arg1, arg2,
     }
 };
 
-__exports.__widl_f_create_element_Document = function(arg0, arg1, arg2, exnptr) {
-    let varg1 = getStringFromWasm(arg1, arg2);
-    try {
-        return addHeapObject(getObject(arg0).createElement(varg1));
-    } catch (e) {
-        const view = getUint32Memory();
-        view[exnptr / 4] = 1;
-        view[exnptr / 4 + 1] = addHeapObject(e);
-
-    }
-};
-
 function isLikeNone(x) {
     return x === undefined || x === null;
 }
@@ -79,11 +67,6 @@ __exports.__widl_f_get_element_by_id_Document = function(arg0, arg1, arg2) {
     const val = getObject(arg0).getElementById(varg1);
     return isLikeNone(val) ? 0 : addHeapObject(val);
 
-};
-
-__exports.__widl_f_set_id_Element = function(arg0, arg1, arg2) {
-    let varg1 = getStringFromWasm(arg1, arg2);
-    getObject(arg0).id = varg1;
 };
 
 __exports.__widl_instanceof_HTMLCanvasElement = function(idx) {
@@ -113,10 +96,6 @@ __exports.__widl_f_set_height_HTMLCanvasElement = function(arg0, arg1) {
     getObject(arg0).height = arg1;
 };
 
-__exports.__widl_instanceof_HTMLElement = function(idx) {
-    return getObject(idx) instanceof HTMLElement ? 1 : 0;
-};
-
 __exports.__widl_f_style_HTMLElement = function(arg0) {
     return addHeapObject(getObject(arg0).style);
 };
@@ -139,17 +118,6 @@ __exports.__widl_f_new_Image = function(exnptr) {
 __exports.__widl_f_set_src_HTMLImageElement = function(arg0, arg1, arg2) {
     let varg1 = getStringFromWasm(arg1, arg2);
     getObject(arg0).src = varg1;
-};
-
-__exports.__widl_f_append_child_Node = function(arg0, arg1, exnptr) {
-    try {
-        return addHeapObject(getObject(arg0).appendChild(getObject(arg1)));
-    } catch (e) {
-        const view = getUint32Memory();
-        view[exnptr / 4] = 1;
-        view[exnptr / 4 + 1] = addHeapObject(e);
-
-    }
 };
 
 __exports.__widl_instanceof_WebGL2RenderingContext = function(idx) {
@@ -544,7 +512,7 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper687 = function(a, b, _ignored) {
+__exports.__wbindgen_closure_wrapper680 = function(a, b, _ignored) {
     const f = wasm.__wbg_function_table.get(2);
     const d = wasm.__wbg_function_table.get(3);
     const cb = function() {
