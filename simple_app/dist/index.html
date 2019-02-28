@@ -46,44 +46,39 @@
 <!--</script>-->
 <div id="container">
     <canvas id="viewport"></canvas>
-    <!--<div id="simple_app">-->
+    <div id="ui"></div>
+    <!--<div id="ui">-->
+        <!--<form class="control">-->
+            <!--<label class="control-label">X</label>-->
+            <!--<input type="range" id="inputX" value="50" min="1" max="100" oninput="outputX.value=inputX.value">-->
+            <!--<output class="control-output" id="outputX">50</output>-->
+        <!--</form>-->
+        <!--<form class="control">-->
+            <!--<label class="control-label">Y</label>-->
+            <!--<input type="range" id="inputY" value="50" min="1" max="100" oninput="outputY.value=inputY.value">-->
+            <!--<output class="control-output" id="outputY">50</output>-->
+        <!--</form>-->
     <!--</div>-->
-    <div id="ui">
-        <form class="control">
-            <label class="control-label">X</label>
-            <input type="range" id="inputX" value="50" min="1" max="100" oninput="outputX.value=inputX.value">
-            <output class="control-output" id="outputX">50</output>
-        </form>
-        <form class="control">
-            <label class="control-label">Y</label>
-            <input type="range" id="inputY" value="50" min="1" max="100" oninput="outputY.value=inputY.value">
-            <output class="control-output" id="outputY">50</output>
-        </form>
-    </div>
 </div>
 <style>
-    #ui {
-        display: inline;
-        float:left;
-        background-color: aquamarine;
-        font-size: 0;
-    }
-    .control {
-        background-color: burlywood;
-        padding: 5px;
-    }
-    .control-label, .control-output {
-        font-family: Arial;
-        font-size: 16px;
-        margin: 0px 5px 0px 5px;
-    }
-    /*#viewport {*/
+    /*#ui {*/
         /*display: inline;*/
         /*float:left;*/
+        /*background-color: aquamarine;*/
+        /*font-size: 0;*/
     /*}*/
-    label {
-        display: inline-block;
-    }
+    /*.control {*/
+        /*background-color: burlywood;*/
+        /*padding: 5px;*/
+    /*}*/
+    /*.control-label, .control-output {*/
+        /*font-family: Arial;*/
+        /*font-size: 16px;*/
+        /*margin: 0px 5px 0px 5px;*/
+    /*}*/
+    /*label {*/
+        /*display: inline-block;*/
+    /*}*/
 </style>
 </body>
 </html>

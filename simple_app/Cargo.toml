@@ -27,6 +27,7 @@ features = [
   'HtmlFormElement',
   'HtmlImageElement',
   'HtmlInputElement',
+  'HtmlOutputElement',
   'HtmlLabelElement',
 #  'InputEvent',
 #  'MouseEvent',

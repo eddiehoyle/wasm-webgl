@@ -8,6 +8,7 @@ use web_sys::HtmlElement;
 use web_sys::HtmlLabelElement;
 use web_sys::HtmlFormElement;
 use web_sys::HtmlInputElement;
+use web_sys::HtmlOutputElement;
 use crate::app::App;
 
 
@@ -15,26 +16,53 @@ pub fn append_controls(app: &App) -> Result<(), JsValue> {
     let window = window().unwrap();
     let document = window.document().unwrap();
 
-    let container: HtmlElement = match document.get_element_by_id("simple_app") {
-        Some(container) => container.dyn_into().expect("Html element"),
-        None => document.body().expect("Document body"),
-    };
+    let ui: Element = document.get_element_by_id("ui").unwrap();
+    let form: HtmlFormElement = document.create_element("form")?.dyn_into()?;
+    let label: HtmlLabelElement = document.create_element("label")?.dyn_into()?;
+    let input: HtmlInputElement = document.create_element("input")?.dyn_into()?;
+    let output: HtmlOutputElement = document.create_element("output")?.dyn_into()?;
 
-    let controls = document.create_element("div")?;
-    container.append_child(&controls)?;
-    let controls: HtmlElement = controls.dyn_into()?;
-    controls.style().set_property("padding-left", "5px")?;
-    let controls: Element = controls.dyn_into()?;
+    label.set_inner_html("X");
+    input.set_type("range");
+    input.set_min("0");
+    input.set_max("100");
+    input.set_step("1");
+    input.set_value("50");
+
+    let oninput = move |event: web_sys::Event| {
+        let input: HtmlInputElement = event.target().unwrap().dyn_into().unwrap();
+        let value : f32 = input.value().parse().unwrap();
+        info!("Value: {}", value);
+    };
+    let closure = Closure::wrap(Box::new(oninput) as Box<FnMut(_)>);
+    form.set_oninput(Some(&closure.as_ref().unchecked_ref()));
+    closure.forget();
+
+    ui.append_child(&form)?;
+    form.append_child(&label)?;
+    form.append_child(&input)?;
+    form.append_child(&output)?;
+
+//    let container: HtmlElement = match document.get_element_by_id("simple_app") {
+//        Some(container) => container.dyn_into().expect("Html element"),
+//        None => document.body().expect("Document body"),
+//    };
+//
+//    let controls = document.create_element("div")?;
+//    container.append_child(&controls)?;
+//    let controls: HtmlElement = controls.dyn_into()?;
+//    controls.style().set_property("padding-left", "5px")?;
+//    let controls: Element = controls.dyn_into()?;
 
     info!("Creating controls");
 
-    // Wave Speed
-    {
-//        let app = Rc::clone(&app);
-//        let wave_speed_control = create_wave_speed_control(app)?;
-        let control = create_control(app, "sdf", 0.0, 12.0, 0.2)?;
-        controls.append_child(&control)?;
-    }
+//    // Wave Speed
+//    {
+////        let app = Rc::clone(&app);
+////        let wave_speed_control = create_wave_speed_control(app)?;
+//        let control = create_control(app, "sdf", 0.0, 12.0, 0.2)?;
+//        controls.append_child(&control)?;
+//    }
 
     Ok(())
 }

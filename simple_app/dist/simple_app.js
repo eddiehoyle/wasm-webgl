@@ -57,6 +57,18 @@ __exports.__widl_f_set_property_CSSStyleDeclaration = function(arg0, arg1, arg2,
     }
 };
 
+__exports.__widl_f_create_element_Document = function(arg0, arg1, arg2, exnptr) {
+    let varg1 = getStringFromWasm(arg1, arg2);
+    try {
+        return addHeapObject(getObject(arg0).createElement(varg1));
+    } catch (e) {
+        const view = getUint32Memory();
+        view[exnptr / 4] = 1;
+        view[exnptr / 4 + 1] = addHeapObject(e);
+
+    }
+};
+
 function isLikeNone(x) {
     return x === undefined || x === null;
 }
@@ -65,6 +77,18 @@ __exports.__widl_f_get_element_by_id_Document = function(arg0, arg1, arg2) {
     let varg1 = getStringFromWasm(arg1, arg2);
 
     const val = getObject(arg0).getElementById(varg1);
+    return isLikeNone(val) ? 0 : addHeapObject(val);
+
+};
+
+__exports.__widl_f_set_inner_html_Element = function(arg0, arg1, arg2) {
+    let varg1 = getStringFromWasm(arg1, arg2);
+    getObject(arg0).innerHTML = varg1;
+};
+
+__exports.__widl_f_target_Event = function(arg0) {
+
+    const val = getObject(arg0).target;
     return isLikeNone(val) ? 0 : addHeapObject(val);
 
 };
@@ -100,8 +124,16 @@ __exports.__widl_f_style_HTMLElement = function(arg0) {
     return addHeapObject(getObject(arg0).style);
 };
 
+__exports.__widl_f_set_oninput_HTMLElement = function(arg0, arg1) {
+    getObject(arg0).oninput = getObject(arg1);
+};
+
 __exports.__widl_f_set_onload_HTMLElement = function(arg0, arg1) {
     getObject(arg0).onload = getObject(arg1);
+};
+
+__exports.__widl_instanceof_HTMLFormElement = function(idx) {
+    return getObject(idx) instanceof HTMLFormElement ? 1 : 0;
 };
 
 __exports.__widl_f_new_Image = function(exnptr) {
@@ -118,6 +150,77 @@ __exports.__widl_f_new_Image = function(exnptr) {
 __exports.__widl_f_set_src_HTMLImageElement = function(arg0, arg1, arg2) {
     let varg1 = getStringFromWasm(arg1, arg2);
     getObject(arg0).src = varg1;
+};
+
+__exports.__widl_instanceof_HTMLInputElement = function(idx) {
+    return getObject(idx) instanceof HTMLInputElement ? 1 : 0;
+};
+
+__exports.__widl_f_set_max_HTMLInputElement = function(arg0, arg1, arg2) {
+    let varg1 = getStringFromWasm(arg1, arg2);
+    getObject(arg0).max = varg1;
+};
+
+__exports.__widl_f_set_min_HTMLInputElement = function(arg0, arg1, arg2) {
+    let varg1 = getStringFromWasm(arg1, arg2);
+    getObject(arg0).min = varg1;
+};
+
+__exports.__widl_f_set_step_HTMLInputElement = function(arg0, arg1, arg2) {
+    let varg1 = getStringFromWasm(arg1, arg2);
+    getObject(arg0).step = varg1;
+};
+
+__exports.__widl_f_set_type_HTMLInputElement = function(arg0, arg1, arg2) {
+    let varg1 = getStringFromWasm(arg1, arg2);
+    getObject(arg0).type = varg1;
+};
+
+let cachedTextEncoder = new TextEncoder('utf-8');
+
+let WASM_VECTOR_LEN = 0;
+
+function passStringToWasm(arg) {
+
+    const buf = cachedTextEncoder.encode(arg);
+    const ptr = wasm.__wbindgen_malloc(buf.length);
+    getUint8Memory().set(buf, ptr);
+    WASM_VECTOR_LEN = buf.length;
+    return ptr;
+}
+
+__exports.__widl_f_value_HTMLInputElement = function(ret, arg0) {
+
+    const retptr = passStringToWasm(getObject(arg0).value);
+    const retlen = WASM_VECTOR_LEN;
+    const mem = getUint32Memory();
+    mem[ret / 4] = retptr;
+    mem[ret / 4 + 1] = retlen;
+
+};
+
+__exports.__widl_f_set_value_HTMLInputElement = function(arg0, arg1, arg2) {
+    let varg1 = getStringFromWasm(arg1, arg2);
+    getObject(arg0).value = varg1;
+};
+
+__exports.__widl_instanceof_HTMLLabelElement = function(idx) {
+    return getObject(idx) instanceof HTMLLabelElement ? 1 : 0;
+};
+
+__exports.__widl_instanceof_HTMLOutputElement = function(idx) {
+    return getObject(idx) instanceof HTMLOutputElement ? 1 : 0;
+};
+
+__exports.__widl_f_append_child_Node = function(arg0, arg1, exnptr) {
+    try {
+        return addHeapObject(getObject(arg0).appendChild(getObject(arg1)));
+    } catch (e) {
+        const view = getUint32Memory();
+        view[exnptr / 4] = 1;
+        view[exnptr / 4 + 1] = addHeapObject(e);
+
+    }
 };
 
 __exports.__widl_instanceof_WebGL2RenderingContext = function(idx) {
@@ -243,19 +346,6 @@ __exports.__widl_f_get_attrib_location_WebGL2RenderingContext = function(arg0, a
     let varg2 = getStringFromWasm(arg2, arg3);
     return getObject(arg0).getAttribLocation(getObject(arg1), varg2);
 };
-
-let cachedTextEncoder = new TextEncoder('utf-8');
-
-let WASM_VECTOR_LEN = 0;
-
-function passStringToWasm(arg) {
-
-    const buf = cachedTextEncoder.encode(arg);
-    const ptr = wasm.__wbindgen_malloc(buf.length);
-    getUint8Memory().set(buf, ptr);
-    WASM_VECTOR_LEN = buf.length;
-    return ptr;
-}
 
 __exports.__widl_f_get_program_info_log_WebGL2RenderingContext = function(ret, arg0, arg1) {
     const val = getObject(arg0).getProgramInfoLog(getObject(arg1));
@@ -512,9 +602,33 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper680 = function(a, b, _ignored) {
-    const f = wasm.__wbg_function_table.get(2);
-    const d = wasm.__wbg_function_table.get(3);
+__exports.__wbindgen_closure_wrapper765 = function(a, b, _ignored) {
+    const f = wasm.__wbg_function_table.get(7);
+    const d = wasm.__wbg_function_table.get(8);
+    const cb = function(arg0) {
+        this.cnt++;
+        let a = this.a;
+        this.a = 0;
+        try {
+            return f(a, b, addHeapObject(arg0));
+
+        } finally {
+            this.a = a;
+            if (this.cnt-- == 1) d(this.a, b);
+
+        }
+
+    };
+    cb.a = a;
+    cb.cnt = 1;
+    let real = cb.bind(cb);
+    real.original = cb;
+    return addHeapObject(real);
+};
+
+__exports.__wbindgen_closure_wrapper767 = function(a, b, _ignored) {
+    const f = wasm.__wbg_function_table.get(5);
+    const d = wasm.__wbg_function_table.get(6);
     const cb = function() {
         this.cnt++;
         try {
