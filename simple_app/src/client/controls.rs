@@ -4,6 +4,7 @@ use wasm_bindgen::JsCast;
 use wasm_bindgen::JsValue;
 use web_sys::window;
 use web_sys::Element;
+use web_sys::Document;
 use web_sys::HtmlElement;
 use web_sys::HtmlLabelElement;
 use web_sys::HtmlFormElement;
@@ -12,162 +13,99 @@ use web_sys::HtmlOutputElement;
 use crate::app::App;
 
 
-pub fn append_controls(app: &App) -> Result<(), JsValue> {
-    let window = window().unwrap();
-    let document = window.document().unwrap();
-
-    let ui: Element = document.get_element_by_id("ui").unwrap();
-    let form: HtmlFormElement = document.create_element("form")?.dyn_into()?;
-    let label: HtmlLabelElement = document.create_element("label")?.dyn_into()?;
-    let input: HtmlInputElement = document.create_element("input")?.dyn_into()?;
-    let output: HtmlOutputElement = document.create_element("output")?.dyn_into()?;
-
-    label.set_inner_html("X");
-    input.set_type("range");
-    input.set_min("0");
-    input.set_max("100");
-    input.set_step("1");
-    input.set_value("50");
-
-    let oninput = move |event: web_sys::Event| {
-        let input: HtmlInputElement = event.target().unwrap().dyn_into().unwrap();
-        let value : f32 = input.value().parse().unwrap();
-        info!("Value: {}", value);
-    };
-    let closure = Closure::wrap(Box::new(oninput) as Box<FnMut(_)>);
-    form.set_oninput(Some(&closure.as_ref().unchecked_ref()));
-    closure.forget();
-
-    ui.append_child(&form)?;
-    form.append_child(&label)?;
-    form.append_child(&input)?;
-    form.append_child(&output)?;
-
-//    let container: HtmlElement = match document.get_element_by_id("simple_app") {
-//        Some(container) => container.dyn_into().expect("Html element"),
-//        None => document.body().expect("Document body"),
-//    };
-//
-//    let controls = document.create_element("div")?;
-//    container.append_child(&controls)?;
-//    let controls: HtmlElement = controls.dyn_into()?;
-//    controls.style().set_property("padding-left", "5px")?;
-//    let controls: Element = controls.dyn_into()?;
-
-    info!("Creating controls");
-
-//    // Wave Speed
-//    {
-////        let app = Rc::clone(&app);
-////        let wave_speed_control = create_wave_speed_control(app)?;
-//        let control = create_control(app, "sdf", 0.0, 12.0, 0.2)?;
-//        controls.append_child(&control)?;
-//    }
-
-    Ok(())
-}
-
-fn create_control(app: &App, label: &'static str, min: f32, max: f32, step: f32) -> Result<HtmlElement, JsValue> {
-    let handler = move |event: web_sys::Event| {
-        let input_elem: HtmlInputElement = event.target().unwrap().dyn_into().unwrap();
-        let value : f32 = input_elem.value().parse().unwrap();
-    };
-    let closure = Closure::wrap(Box::new(handler) as Box<FnMut(_)>);
-
-    let control = Slider {
-        min,
-        max,
-        step,
-        start: 0.0,
-        label: label.clone(),
-        closure,
-    }.create_element()?;
-
-    Ok(control)
-}
-
-
-fn create_wave_speed_control(app: &App) -> Result<HtmlElement, JsValue> {
-//    let handler = move |event: web_sys::Event| {
-//        let input_elem: HtmlInputElement = event.target().unwrap().dyn_into().unwrap();
-//        let wave_speed : f32 = input_elem.value().parse().unwrap();
-////        app.store.borrow_mut().msg(&Msg::SetWaveSpeed(wave_speed));
-//    };
-//    let closure = Closure::wrap(Box::new(handler) as Box<FnMut(_)>);
-    let closure = Closure::wrap(Box::new(move |event: web_sys::Event|{}) as Box<FnMut(_)>);
-
-    info!("Creating wave speed");
-
-    let wave_speed_control = Slider {
-        min: 0.0,
-        max: 0.15,
-        step: 0.01,
-        start: 0.06,
-        label: "Wave Speed",
-        closure,
-    }.create_element()?;
-
-    Ok(wave_speed_control)
-}
-
-struct Slider {
+pub struct Slider {
+    label: String,
     min: f32,
     max: f32,
     step: f32,
-    start: f32,
-    label: &'static str,
-    closure: Closure<FnMut(web_sys::Event)>,
+    default: f32,
+    callback: Closure<FnMut(web_sys::Event)>,
 }
 
 impl Slider {
-    fn create_element(self) -> Result<HtmlElement, JsValue> {
+    pub fn new(label: &str, min: f32, max: f32, step: f32, default: f32, callback: Closure<FnMut(web_sys::Event)>) -> Self {
+        Slider { label: label.to_string(), min, max, step, default, callback }
+    }
+}
 
-        info!("Creating slider element");
+pub trait Html {
+    fn element(&self, document: &Document) -> Result<HtmlElement, JsValue>;
+}
 
-        let window = window().unwrap();
-        let document = window.document().unwrap();
+impl Html for Slider {
+    fn element(&self, document: &Document) -> Result<HtmlElement, JsValue> {
 
+        let form: HtmlFormElement = document.create_element("form")?.dyn_into()?;
         let label: HtmlLabelElement = document.create_element("label")?.dyn_into()?;
-        label.set_inner_html(format!("{}:", self.label).as_str());
+        let input: HtmlInputElement = document.create_element("input")?.dyn_into()?;
+        let output: HtmlOutputElement = document.create_element("output")?.dyn_into()?;
 
-        let slider: HtmlInputElement = document.create_element("input")?.dyn_into()?;
-        slider.set_type("range");
-        slider.set_min(&format!("{}", self.min));
-        slider.set_max(&format!("{}", self.max));
-        slider.set_step(&format!("{}", self.step));
-        slider.set_value(&format!("{}", self.start));
-
-//        let closure = self.closure;
-//        slider.set_oninput(Some(closure.as_ref().unchecked_ref()));
-//        closure.forget();
-
-        let value = document.create_element("output")?;
+        form.style().set_property("padding", "5px")?;
+        form.style().set_property("font-size", "0")?;
+        label.style().set_property("font-size", "16")?;
+        output.style().set_property("font-size", "16")?;
+        label.set_inner_html("X");
+        input.set_type("range");
+        input.set_min(&format!("{}", self.min));
+        input.set_max(&format!("{}", self.max));
+        input.set_step(&format!("{}", self.step));
+        input.set_value(&format!("{}", self.default));
+        output.set_value(&format!("{}", self.default));
 
         let oninput = move |event: web_sys::Event| {
-            let elem: HtmlInputElement = event.target().unwrap().dyn_into().unwrap();
-            let v : f32 = elem.value().parse().unwrap();
-            let elem: HtmlElement = elem.dyn_into().unwrap();
-//            for child in elem.children() {
-//
-//            }
-
-//            info!("input: {}", v);
-//            value.set_inner_html(v.to_string().as_str());
-
+            let input: HtmlInputElement = event.target().unwrap().dyn_into().unwrap();
+            let value : f32 = input.value().parse().unwrap();
+            info!("Value: {}", value);
+            let output: HtmlOutputElement = input.next_sibling().unwrap().dyn_into().unwrap();
+            output.set_value(format!("{}", value).as_str());
         };
         let closure = Closure::wrap(Box::new(oninput) as Box<FnMut(_)>);
-
-        let container: HtmlFormElement = document.create_element("form")?.dyn_into()?;
-        container.set_oninput(Some(&closure.as_ref().unchecked_ref()));
+        form.set_oninput(Some(&closure.as_ref().unchecked_ref()));
         closure.forget();
+//        form.set_oninput(Some(&self.closure.as_ref().unchecked_ref()));
 
-        container.append_child(&label)?;
-        container.append_child(&slider)?;
-        container.append_child(&value)?;
+//        parent.append_child(&form)?;
+        form.append_child(&label)?;
+        form.append_child(&input)?;
+        form.append_child(&output)?;
 
-        let container: HtmlElement = container.dyn_into()?;
-        container.style().set_property("margin-bottom", "15px")?;
-
-        Ok(container)
+        Ok(form.dyn_into::<HtmlElement>()?)
     }
+}
+
+pub fn create_control<T>(obj: &T, document: &Document) -> Result<HtmlElement, JsValue>
+where
+    T: Html {
+    obj.element(document)
+}
+
+pub fn append_controls(app: Rc<App>) -> Result<(), JsValue> {
+    let window = window().unwrap();
+    let document = window.document().unwrap();
+    let ui: HtmlElement = document.get_element_by_id("ui").unwrap().dyn_into()?;
+
+    let callback_x = Closure::wrap(Box::new(move |event: web_sys::Event| {
+        let input: HtmlInputElement = event.target().unwrap().dyn_into().unwrap();
+        let value: f32 = input.value().parse().unwrap();
+        let output: HtmlOutputElement = input.next_sibling().unwrap().dyn_into().unwrap();
+        output.set_value(format!("{}", value).as_str());
+    }) as Box<FnMut(web_sys::Event)>);
+
+    let slider_x = Slider::new("X", 0.0, 100.0, 1.0, 55.0, callback_x);
+
+    let callback_y = Closure::wrap(Box::new(move |event: web_sys::Event| {
+        let input: HtmlInputElement = event.target().unwrap().dyn_into().unwrap();
+        let value: f32 = input.value().parse().unwrap();
+        let output: HtmlOutputElement = input.next_sibling().unwrap().dyn_into().unwrap();
+        output.set_value(format!("{}", value).as_str());
+    }) as Box<FnMut(web_sys::Event)>);
+    let slider_y = Slider::new("Y", 0.0, 25.0, 1.0, 2.0, callback_y);
+
+    let x = create_control(&slider_x, &document)?;
+    let y = create_control(&slider_y, &document)?;
+
+    ui.append_child(&x)?;
+    ui.append_child(&y)?;
+
+    Ok(())
 }

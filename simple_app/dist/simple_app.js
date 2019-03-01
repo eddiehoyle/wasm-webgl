@@ -120,6 +120,10 @@ __exports.__widl_f_set_height_HTMLCanvasElement = function(arg0, arg1) {
     getObject(arg0).height = arg1;
 };
 
+__exports.__widl_instanceof_HTMLElement = function(idx) {
+    return getObject(idx) instanceof HTMLElement ? 1 : 0;
+};
+
 __exports.__widl_f_style_HTMLElement = function(arg0) {
     return addHeapObject(getObject(arg0).style);
 };
@@ -212,6 +216,11 @@ __exports.__widl_instanceof_HTMLOutputElement = function(idx) {
     return getObject(idx) instanceof HTMLOutputElement ? 1 : 0;
 };
 
+__exports.__widl_f_set_value_HTMLOutputElement = function(arg0, arg1, arg2) {
+    let varg1 = getStringFromWasm(arg1, arg2);
+    getObject(arg0).value = varg1;
+};
+
 __exports.__widl_f_append_child_Node = function(arg0, arg1, exnptr) {
     try {
         return addHeapObject(getObject(arg0).appendChild(getObject(arg1)));
@@ -221,6 +230,13 @@ __exports.__widl_f_append_child_Node = function(arg0, arg1, exnptr) {
         view[exnptr / 4 + 1] = addHeapObject(e);
 
     }
+};
+
+__exports.__widl_f_next_sibling_Node = function(arg0) {
+
+    const val = getObject(arg0).nextSibling;
+    return isLikeNone(val) ? 0 : addHeapObject(val);
+
 };
 
 __exports.__widl_instanceof_WebGL2RenderingContext = function(idx) {
@@ -590,6 +606,16 @@ getUint32Memory()[len_ptr / 4] = WASM_VECTOR_LEN;
 return ptr;
 };
 
+__exports.__wbindgen_cb_drop = function(i) {
+    const obj = getObject(i).original;
+    dropObject(i);
+    if (obj.cnt-- == 1) {
+        obj.a = 0;
+        return 1;
+    }
+    return 0;
+};
+
 __exports.__wbindgen_cb_forget = dropObject;
 
 __exports.__wbindgen_memory = function() { return addHeapObject(wasm.memory); };
@@ -602,7 +628,7 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper765 = function(a, b, _ignored) {
+__exports.__wbindgen_closure_wrapper793 = function(a, b, _ignored) {
     const f = wasm.__wbg_function_table.get(7);
     const d = wasm.__wbg_function_table.get(8);
     const cb = function(arg0) {
@@ -626,7 +652,7 @@ __exports.__wbindgen_closure_wrapper765 = function(a, b, _ignored) {
     return addHeapObject(real);
 };
 
-__exports.__wbindgen_closure_wrapper767 = function(a, b, _ignored) {
+__exports.__wbindgen_closure_wrapper795 = function(a, b, _ignored) {
     const f = wasm.__wbg_function_table.get(5);
     const d = wasm.__wbg_function_table.get(6);
     const cb = function() {

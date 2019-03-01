@@ -19,7 +19,7 @@ use crate::client::controls::*;
 #[wasm_bindgen]
 pub struct WebClient {
     gl: Rc<GL>,
-    app: App,
+    app: Rc<App>,
     render: WebRenderer,
     clock: RefCell<f32>,
 }
@@ -33,10 +33,10 @@ impl WebClient {
         info!("New WebClient!");
 
         let gl = Rc::new(dom::create_webgl_context().unwrap());
-        let app = App::new();
+        let app = Rc::new(App::new());
         let render = WebRenderer::new(&gl);
 
-        append_controls(&app).expect("Append controls");
+        append_controls(Rc::clone(&app)).expect("Append controls");
 
         WebClient { gl, app, render, clock: RefCell::new(0.0) }
     }
