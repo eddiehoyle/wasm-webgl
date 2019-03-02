@@ -8,6 +8,7 @@ extern crate nalgebra_glm;
 #[macro_use]
 extern crate log;
 extern crate wasm_logger;
+extern crate specs;
 
 pub mod client;
 mod render;

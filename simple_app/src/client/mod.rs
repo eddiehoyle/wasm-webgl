@@ -9,12 +9,14 @@ use std::borrow::Borrow;
 
 mod dom;
 mod controls;
+mod ecs;
 
 use crate::texture;
 use crate::render::WebRenderer;
 use crate::app::{App, Msg};
 use crate::prim::rect::Rectangle;
 use crate::client::controls::*;
+use crate::client::ecs::*;
 
 #[wasm_bindgen]
 pub struct WebClient {
@@ -31,6 +33,14 @@ impl WebClient {
     pub fn new() -> WebClient {
         wasm_logger::init(wasm_logger::Config::new(log::Level::Debug));
         info!("New WebClient!");
+
+        // ------------------------------------------------------------
+
+        run_ecs();
+
+
+        // ------------------------------------------------------------
+
 
         let gl = Rc::new(dom::create_webgl_context().unwrap());
         let app = Rc::new(App::new());
