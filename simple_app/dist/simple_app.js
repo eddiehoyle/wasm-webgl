@@ -160,6 +160,10 @@ __exports.__widl_instanceof_HTMLInputElement = function(idx) {
     return getObject(idx) instanceof HTMLInputElement ? 1 : 0;
 };
 
+__exports.__widl_f_checked_HTMLInputElement = function(arg0) {
+    return getObject(arg0).checked;
+};
+
 __exports.__widl_f_set_max_HTMLInputElement = function(arg0, arg1, arg2) {
     let varg1 = getStringFromWasm(arg1, arg2);
     getObject(arg0).max = varg1;
@@ -219,6 +223,10 @@ __exports.__widl_instanceof_HTMLOutputElement = function(idx) {
 __exports.__widl_f_set_value_HTMLOutputElement = function(arg0, arg1, arg2) {
     let varg1 = getStringFromWasm(arg1, arg2);
     getObject(arg0).value = varg1;
+};
+
+__exports.__widl_instanceof_Node = function(idx) {
+    return getObject(idx) instanceof Node ? 1 : 0;
 };
 
 __exports.__widl_f_append_child_Node = function(arg0, arg1, exnptr) {
@@ -606,16 +614,6 @@ getUint32Memory()[len_ptr / 4] = WASM_VECTOR_LEN;
 return ptr;
 };
 
-__exports.__wbindgen_cb_drop = function(i) {
-    const obj = getObject(i).original;
-    dropObject(i);
-    if (obj.cnt-- == 1) {
-        obj.a = 0;
-        return 1;
-    }
-    return 0;
-};
-
 __exports.__wbindgen_cb_forget = dropObject;
 
 __exports.__wbindgen_memory = function() { return addHeapObject(wasm.memory); };
@@ -628,7 +626,7 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper793 = function(a, b, _ignored) {
+__exports.__wbindgen_closure_wrapper799 = function(a, b, _ignored) {
     const f = wasm.__wbg_function_table.get(7);
     const d = wasm.__wbg_function_table.get(8);
     const cb = function(arg0) {
@@ -652,7 +650,7 @@ __exports.__wbindgen_closure_wrapper793 = function(a, b, _ignored) {
     return addHeapObject(real);
 };
 
-__exports.__wbindgen_closure_wrapper795 = function(a, b, _ignored) {
+__exports.__wbindgen_closure_wrapper801 = function(a, b, _ignored) {
     const f = wasm.__wbg_function_table.get(5);
     const d = wasm.__wbg_function_table.get(6);
     const cb = function() {
