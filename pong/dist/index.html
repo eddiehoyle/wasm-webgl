@@ -1,0 +1,37 @@
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+</head>
+<script>
+    delete WebAssembly.instantiateStreaming;
+</script>
+<script src='pong.js'></script>
+<script>
+    window.addEventListener('load', function () {
+        window.wasm_bindgen('pong_bg.wasm')
+            .then(function () {
+                // // Start our rust application. You can find `WebClient` in `src/lib.rs`
+                const webClient = new window.wasm_bindgen.WebClient()
+                webClient.start()
+            //
+            //     let time = Date.now();
+            //     function render () {
+            //         const dt = Date.now() - time
+            //
+            //         webClient.update(dt)
+            //         webClient.render()
+            //         window.requestAnimationFrame(render)
+            //
+            //         time = Date.now()
+            //     }
+            //
+            //     render()
+            })
+    })
+</script>
+<div id="container">
+    <canvas id="viewport"></canvas>
+    <div id="ui"></div>
+</div>
+</body>
+</html>

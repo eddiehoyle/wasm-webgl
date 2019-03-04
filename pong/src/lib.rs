@@ -1,7 +1,14 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+
+#[macro_use]
+extern crate log;
+
+extern crate wasm_bindgen;
+extern crate wasm_logger;
+
+extern crate specs;
+extern crate shrev;
+
+pub mod client;
