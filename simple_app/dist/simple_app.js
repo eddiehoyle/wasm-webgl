@@ -612,8 +612,8 @@ function takeObject(idx) {
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
 __exports.__wbindgen_closure_wrapper109 = function(a, b, _ignored) {
-    const f = wasm.__wbg_function_table.get(63);
-    const d = wasm.__wbg_function_table.get(64);
+    const f = wasm.__wbg_function_table.get(61);
+    const d = wasm.__wbg_function_table.get(62);
     const cb = function(arg0) {
         this.cnt++;
         let a = this.a;
@@ -636,8 +636,8 @@ __exports.__wbindgen_closure_wrapper109 = function(a, b, _ignored) {
 };
 
 __exports.__wbindgen_closure_wrapper111 = function(a, b, _ignored) {
-    const f = wasm.__wbg_function_table.get(61);
-    const d = wasm.__wbg_function_table.get(62);
+    const f = wasm.__wbg_function_table.get(59);
+    const d = wasm.__wbg_function_table.get(60);
     const cb = function() {
         this.cnt++;
         try {

@@ -9,6 +9,7 @@ extern crate nalgebra_glm;
 extern crate log;
 extern crate wasm_logger;
 extern crate specs;
+extern crate shrev;
 
 pub mod client;
 mod render;
