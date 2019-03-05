@@ -6,6 +6,37 @@ use wasm_bindgen::JsCast;
 use wasm_bindgen::JsValue;
 use web_sys::WebGl2RenderingContext as GL;
 use std::borrow::Borrow;
+use shrev::EventChannel;
+use crate::event::{Event, WindowEvent, InputEvent, KeyboardInput};
+
+
+#[derive(Default)]
+pub struct InputHandler {
+    is_down: bool,
+}
+
+impl InputHandler {
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    pub fn send_event(&mut self,
+                      event: &Event,
+                      event_handler: &mut EventChannel<InputEvent>,
+    ) {
+        match *event {
+            Event::WindowEvent { ref event, .. } => match *event {
+                WindowEvent::KeyboardInput {
+                    input: KeyboardInput {
+                        scancode,
+                    }
+                } => {
+                    info!("Keyboard input: {}", scancode);
+                }
+            }
+        }
+    }
+}
 
 fn attach_keydown_callback(document: &Document) -> Result<(), JsValue> {
     let handler = move |event: web_sys::KeyboardEvent| {

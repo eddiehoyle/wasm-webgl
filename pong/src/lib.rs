@@ -12,3 +12,4 @@ extern crate specs;
 extern crate shrev;
 
 pub mod client;
+mod event;
