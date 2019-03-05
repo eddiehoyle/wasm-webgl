@@ -38,7 +38,7 @@ features = [
   'HtmlOutputElement',
   'HtmlLabelElement',
 #  'InputEvent',
-#  'MouseEvent',
+  'KeyboardEvent',
   'Node',
 #  'Touch',
 #  'TouchEvent',
