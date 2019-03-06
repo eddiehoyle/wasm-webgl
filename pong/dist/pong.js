@@ -282,16 +282,6 @@ getUint32Memory()[len_ptr / 4] = WASM_VECTOR_LEN;
 return ptr;
 };
 
-__exports.__wbindgen_cb_drop = function(i) {
-    const obj = getObject(i).original;
-    dropObject(i);
-    if (obj.cnt-- == 1) {
-        obj.a = 0;
-        return 1;
-    }
-    return 0;
-};
-
 __exports.__wbindgen_cb_forget = dropObject;
 
 function takeObject(idx) {
@@ -302,9 +292,9 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper69 = function(a, b, _ignored) {
-    const f = wasm.__wbg_function_table.get(8);
-    const d = wasm.__wbg_function_table.get(9);
+__exports.__wbindgen_closure_wrapper441 = function(a, b, _ignored) {
+    const f = wasm.__wbg_function_table.get(18);
+    const d = wasm.__wbg_function_table.get(19);
     const cb = function(arg0) {
         this.cnt++;
         let a = this.a;

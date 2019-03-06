@@ -9,35 +9,6 @@ use std::borrow::Borrow;
 use shrev::EventChannel;
 use crate::event::{Event, WindowEvent, InputEvent, KeyboardInput};
 
-
-#[derive(Default)]
-pub struct InputHandler {
-    is_down: bool,
-}
-
-impl InputHandler {
-    pub fn new() -> Self {
-        Default::default()
-    }
-
-    pub fn send_event(&mut self,
-                      event: &Event,
-                      event_handler: &mut EventChannel<InputEvent>,
-    ) {
-        match *event {
-            Event::WindowEvent { ref event, .. } => match *event {
-                WindowEvent::KeyboardInput {
-                    input: KeyboardInput {
-                        scancode,
-                    }
-                } => {
-                    info!("Keyboard input: {}", scancode);
-                }
-            }
-        }
-    }
-}
-
 fn attach_keydown_callback(document: &Document) -> Result<(), JsValue> {
     let handler = move |event: web_sys::KeyboardEvent| {
         info!("Keydown: {}", event.key());
@@ -67,7 +38,6 @@ fn attach_keyup_callback(document: &Document) -> Result<(), JsValue> {
     Ok(())
 }
 
-
 fn init_canvas() -> Result<HtmlCanvasElement, JsValue> {
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
@@ -78,8 +48,8 @@ fn init_canvas() -> Result<HtmlCanvasElement, JsValue> {
     canvas.style().set_property("display", "inline")?;
     canvas.style().set_property("float", "left")?;
 
-    attach_keydown_callback(&document)?;
-    attach_keyup_callback(&document)?;
+//    attach_keydown_callback(&document)?;
+//    attach_keyup_callback(&document)?;
 
     Ok(canvas)
 }
