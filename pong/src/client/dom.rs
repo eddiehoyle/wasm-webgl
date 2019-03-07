@@ -1,13 +1,13 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-use wasm_bindgen::prelude::*;
-use web_sys::*;
-use wasm_bindgen::JsCast;
-use wasm_bindgen::JsValue;
-use web_sys::WebGl2RenderingContext as GL;
 use std::borrow::Borrow;
 use shrev::EventChannel;
 use crate::event::{Event, WindowEvent, InputEvent, KeyboardInput};
+
+use wasm_bindgen::prelude::*;
+use wasm_bindgen::*;
+use web_sys::*;
+use web_sys::WebGl2RenderingContext as GL;
 
 fn attach_keydown_callback(document: &Document) -> Result<(), JsValue> {
     let handler = move |event: web_sys::KeyboardEvent| {

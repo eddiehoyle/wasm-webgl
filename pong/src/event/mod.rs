@@ -10,14 +10,14 @@ pub enum Event {
 #[derive(Clone, Debug, PartialEq)]
 pub enum WindowEvent {
     KeyboardInput {
-        input: KeyboardInput,
+        input: InputEvent,
     },
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum InputEvent {
-    KeyPressed(u32),
-    KeyReleased(u32),
+    KeyPressed(String),
+    KeyReleased(String),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
