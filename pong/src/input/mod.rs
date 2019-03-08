@@ -17,16 +17,17 @@ impl InputHandler {
                       event_handler: &mut EventChannel<InputEvent>,
     ) {
         info!("Sending event...");
-//        match *event {
-//            Event::WindowEvent { ref event, .. } => match *event {
-//                WindowEvent::KeyboardInput {
-//                    input: InputEvent { ref input2, .. } => match *input {
-//
-//                    }
-//                } => {
-//                    info!("Keyboard input: {}", scancode);
-//                }
-//            }
-//        }
+        match *event {
+            Event::WindowEvent { ref event, .. } => match event {
+                WindowEvent::KeyboardInput { ref input, .. } => match input {
+                    InputEvent::KeyPressed(key) => {
+                        info!("Pressed: {}", key);
+                    },
+                    InputEvent::KeyReleased(key) => {
+                        info!("Released: {}", key);
+                    }
+                }
+            }
+        }
     }
 }

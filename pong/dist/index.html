@@ -13,19 +13,16 @@
                 // // Start our rust application. You can find `WebClient` in `src/lib.rs`
                 const webClient = new window.wasm_bindgen.WebClient()
                 webClient.start()
-            //
-            //     let time = Date.now();
-            //     function render () {
-            //         const dt = Date.now() - time
-            //
-            //         webClient.update(dt)
-            //         webClient.render()
-            //         window.requestAnimationFrame(render)
-            //
-            //         time = Date.now()
-            //     }
-            //
-            //     render()
+
+                let time = Date.now();
+                function render () {
+                    const dt = Date.now() - time
+                    webClient.update(dt)
+                    window.requestAnimationFrame(render)
+                    time = Date.now()
+                }
+
+                render()
             })
     })
 </script>

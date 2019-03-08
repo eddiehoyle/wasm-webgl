@@ -14,7 +14,6 @@ pub struct InputSystem {
 
 impl InputSystem {
 
-    /// Create a new input system. Needs a reader id for `EventHandler<winit::Event>`.
     pub fn new() -> Self {
         InputSystem {
             reader: None,
@@ -26,7 +25,7 @@ impl InputSystem {
         handler: &mut InputHandler,
         output: &mut EventChannel<InputEvent>,
     ) {
-        info!("Processing event!");
+        info!("Processing event...");
         handler.send_event(event, output);
     }
 }
@@ -39,7 +38,6 @@ impl<'a> System<'a> for InputSystem {
     );
 
     fn run(&mut self, (input, mut handler, mut output): Self::SystemData) {
-        info!("Running system!");
         for event in input.read(&mut self.reader.as_mut().unwrap()) {
             Self::process_event(event, &mut *handler, &mut *output);
         }
@@ -49,19 +47,6 @@ impl<'a> System<'a> for InputSystem {
         use specs::prelude::SystemData;
         Self::SystemData::setup(res);
         self.reader = Some(res.fetch_mut::<EventChannel<Event>>().register_reader());
-
-        let window = web_sys::window().unwrap();
-        let document = window.document().unwrap();
-        let canvas: HtmlCanvasElement = document.get_element_by_id("viewport").unwrap().dyn_into().unwrap();
-
-        let handler = move |event: web_sys::KeyboardEvent| {
-            info!("Keydown: {}", event.key());
-        };
-
-        let handler = Closure::wrap(Box::new(handler) as Box<FnMut(_)>);
-        document.add_event_listener_with_callback("keydown", handler.as_ref().unchecked_ref()).unwrap();
-        handler.forget();
-
         info!("Setting up InputSystem");
     }
 }
