@@ -11,12 +11,12 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use crate::event::*;
 
-pub struct App<'a, 'b> {
+pub struct App {
     pub world: World,
-    pub dispatcher: Dispatcher<'a, 'b>,
+    pub dispatcher: Dispatcher<'static, 'static>,
 }
 
-impl<'a, 'b> App<'a, 'b> {
+impl App {
     pub fn new() -> Self {
 
         let mut world = World::new();
@@ -33,4 +33,6 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn update(&mut self, delta: u32) {
         self.dispatcher.dispatch(&self.world.res);
     }
+
+    pub fn render(&self) {}
 }

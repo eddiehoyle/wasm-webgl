@@ -136,12 +136,84 @@ __exports.__widl_instanceof_WebGL2RenderingContext = function(idx) {
     return getObject(idx) instanceof WebGL2RenderingContext ? 1 : 0;
 };
 
+__exports.__widl_f_attach_shader_WebGL2RenderingContext = function(arg0, arg1, arg2) {
+    getObject(arg0).attachShader(getObject(arg1), getObject(arg2));
+};
+
 __exports.__widl_f_clear_color_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4) {
     getObject(arg0).clearColor(arg1, arg2, arg3, arg4);
 };
 
+__exports.__widl_f_compile_shader_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).compileShader(getObject(arg1));
+};
+
+__exports.__widl_f_create_program_WebGL2RenderingContext = function(arg0) {
+
+    const val = getObject(arg0).createProgram();
+    return isLikeNone(val) ? 0 : addHeapObject(val);
+
+};
+
+__exports.__widl_f_create_shader_WebGL2RenderingContext = function(arg0, arg1) {
+
+    const val = getObject(arg0).createShader(arg1);
+    return isLikeNone(val) ? 0 : addHeapObject(val);
+
+};
+
 __exports.__widl_f_enable_WebGL2RenderingContext = function(arg0, arg1) {
     getObject(arg0).enable(arg1);
+};
+
+__exports.__widl_f_get_attrib_location_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
+    let varg2 = getStringFromWasm(arg2, arg3);
+    return getObject(arg0).getAttribLocation(getObject(arg1), varg2);
+};
+
+__exports.__widl_f_get_program_info_log_WebGL2RenderingContext = function(ret, arg0, arg1) {
+    const val = getObject(arg0).getProgramInfoLog(getObject(arg1));
+    const retptr = isLikeNone(val) ? [0, 0] : passStringToWasm(val);
+    const retlen = WASM_VECTOR_LEN;
+    const mem = getUint32Memory();
+    mem[ret / 4] = retptr;
+    mem[ret / 4 + 1] = retlen;
+
+};
+
+__exports.__widl_f_get_program_parameter_WebGL2RenderingContext = function(arg0, arg1, arg2) {
+    return addHeapObject(getObject(arg0).getProgramParameter(getObject(arg1), arg2));
+};
+
+__exports.__widl_f_get_shader_info_log_WebGL2RenderingContext = function(ret, arg0, arg1) {
+    const val = getObject(arg0).getShaderInfoLog(getObject(arg1));
+    const retptr = isLikeNone(val) ? [0, 0] : passStringToWasm(val);
+    const retlen = WASM_VECTOR_LEN;
+    const mem = getUint32Memory();
+    mem[ret / 4] = retptr;
+    mem[ret / 4 + 1] = retlen;
+
+};
+
+__exports.__widl_f_get_shader_parameter_WebGL2RenderingContext = function(arg0, arg1, arg2) {
+    return addHeapObject(getObject(arg0).getShaderParameter(getObject(arg1), arg2));
+};
+
+__exports.__widl_f_get_uniform_location_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
+    let varg2 = getStringFromWasm(arg2, arg3);
+
+    const val = getObject(arg0).getUniformLocation(getObject(arg1), varg2);
+    return isLikeNone(val) ? 0 : addHeapObject(val);
+
+};
+
+__exports.__widl_f_link_program_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).linkProgram(getObject(arg1));
+};
+
+__exports.__widl_f_shader_source_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3) {
+    let varg2 = getStringFromWasm(arg2, arg3);
+    getObject(arg0).shaderSource(getObject(arg1), varg2);
 };
 
 __exports.__widl_instanceof_Window = function(idx) {
@@ -206,6 +278,15 @@ __exports.__wbindgen_object_drop_ref = function(i) { dropObject(i); };
 
 __exports.__wbindgen_string_new = function(p, l) {
     return addHeapObject(getStringFromWasm(p, l));
+};
+
+__exports.__wbindgen_boolean_get = function(i) {
+    let v = getObject(i);
+    if (typeof(v) === 'boolean') {
+        return v ? 1 : 0;
+    } else {
+        return 2;
+    }
 };
 
 __exports.__wbindgen_debug_string = function(i, len_ptr) {
@@ -292,9 +373,9 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper449 = function(a, b, _ignored) {
-    const f = wasm.__wbg_function_table.get(17);
-    const d = wasm.__wbg_function_table.get(18);
+__exports.__wbindgen_closure_wrapper658 = function(a, b, _ignored) {
+    const f = wasm.__wbg_function_table.get(18);
+    const d = wasm.__wbg_function_table.get(19);
     const cb = function(arg0) {
         this.cnt++;
         let a = this.a;

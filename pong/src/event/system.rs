@@ -25,7 +25,6 @@ impl InputSystem {
         handler: &mut InputHandler,
         output: &mut EventChannel<InputEvent>,
     ) {
-        info!("Processing event...");
         handler.send_event(event, output);
     }
 }

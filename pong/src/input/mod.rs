@@ -1,10 +1,12 @@
 use shrev::EventChannel;
 use crate::event::Event;
 use crate::event::{InputEvent, WindowEvent, KeyboardInput};
+use std::collections::HashMap;
+use std::collections::HashSet;
 
 #[derive(Default)]
 pub struct InputHandler {
-    is_down: bool,
+    keyset: HashSet<String>,
 }
 
 impl InputHandler {
@@ -16,15 +18,21 @@ impl InputHandler {
                       event: &Event,
                       event_handler: &mut EventChannel<InputEvent>,
     ) {
-        info!("Sending event...");
         match *event {
             Event::WindowEvent { ref event, .. } => match event {
                 WindowEvent::KeyboardInput { ref input, .. } => match input {
                     InputEvent::KeyPressed(key) => {
-                        info!("Pressed: {}", key);
+                        if let None = self.keyset.get(key) {
+                            info!("Pressed: {}", &key);
+                            self.keyset.insert(key.clone());
+                        }
                     },
                     InputEvent::KeyReleased(key) => {
-                        info!("Released: {}", key);
+                        if let Some(key) = self.keyset.get(key) {
+                            info!("Released: {}", &key);
+                        }
+                        self.keyset.remove(key);
+
                     }
                 }
             }
