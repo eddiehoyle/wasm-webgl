@@ -14,6 +14,7 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use crate::event::{Event, WindowEvent, InputEvent};
 use crate::render::WebRenderer;
+use crate::render::system::RenderSystem;
 
 mod dom;
 
@@ -32,7 +33,14 @@ impl WebClient {
         wasm_logger::init(wasm_logger::Config::new(log::Level::Debug));
 
         let gl_rc = Rc::new(create_webgl_context().unwrap());
-        let app_rc = Rc::new(RefCell::new(App::new()));
+
+        let dispatcher = DispatcherBuilder::new()
+            .with(InputSystem::new(), "input", &[])
+            .with_barrier()
+            .with(RenderSystem::new(), "render", &[])
+            .build();
+
+        let app_rc = Rc::new(RefCell::new(App::new(dispatcher)));
         let render_rc = Rc::new(WebRenderer::new(&gl_rc));
         WebClient { gl: gl_rc, app: app_rc, render: render_rc}
     }

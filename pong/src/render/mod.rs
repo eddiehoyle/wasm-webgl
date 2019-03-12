@@ -10,10 +10,11 @@ use crate::render::shader::manager::ShaderManager;
 
 pub mod shader;
 pub mod traits;
+pub mod system;
 
 struct Viewport {
     width: u32,
-    height: h32,
+    height: u32,
 }
 
 pub struct WebRenderer {

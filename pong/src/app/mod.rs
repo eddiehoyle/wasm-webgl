@@ -17,13 +17,13 @@ pub struct App {
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub fn new(mut dispatcher: Dispatcher<'static, 'static>) -> Self {
 
         let mut world = World::new();
         world.add_resource(EventChannel::<Event>::new());
-        let mut dispatcher = DispatcherBuilder::new()
-            .with(InputSystem::new(), "input", &[])
-            .build();
+//        let mut dispatcher = DispatcherBuilder::new()
+//            .with(InputSystem::new(), "input", &[])
+//            .build();
         dispatcher.setup(&mut world.res);
         world.maintain();
 
@@ -33,6 +33,4 @@ impl App {
     pub fn update(&mut self, delta: u32) {
         self.dispatcher.dispatch(&self.world.res);
     }
-
-    pub fn render(&self) {}
 }
