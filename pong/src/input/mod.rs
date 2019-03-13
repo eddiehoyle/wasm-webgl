@@ -4,6 +4,8 @@ use crate::event::{InputEvent, WindowEvent, KeyboardInput};
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+pub mod system;
+
 #[derive(Default)]
 pub struct InputHandler {
     keyset: HashSet<String>,

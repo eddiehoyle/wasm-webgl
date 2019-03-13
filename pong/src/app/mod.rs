@@ -1,7 +1,6 @@
 use specs::{DispatcherBuilder, Dispatcher, World};
 use shrev::{EventChannel};
 use crate::event::Event;
-use crate::event::system::InputSystem;
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::*;
@@ -21,9 +20,6 @@ impl App {
 
         let mut world = World::new();
         world.add_resource(EventChannel::<Event>::new());
-//        let mut dispatcher = DispatcherBuilder::new()
-//            .with(InputSystem::new(), "input", &[])
-//            .build();
         dispatcher.setup(&mut world.res);
         world.maintain();
 

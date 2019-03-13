@@ -6,7 +6,7 @@ use specs::World;
 use specs::DispatcherBuilder;
 use shrev::EventChannel;
 use specs::Dispatcher;
-use crate::event::system::InputSystem;
+use crate::input::system::InputSystem;
 use crate::client::dom::create_webgl_context;
 use crate::app::App;
 
@@ -17,12 +17,11 @@ use crate::render::WebRenderer;
 use crate::render::system::RenderSystem;
 
 mod dom;
+mod viewport;
 
 #[wasm_bindgen]
 pub struct WebClient {
-    gl: Rc<GL>,
     app: Rc<RefCell<App>>,
-    render: Rc<WebRenderer>,
 }
 
 #[wasm_bindgen]
@@ -37,15 +36,14 @@ impl WebClient {
         let dispatcher = DispatcherBuilder::new()
             .with(InputSystem::new(), "input", &[])
             .with_barrier()
-            .with(RenderSystem::new(), "render", &[])
+//            .with(RenderSystem::new(), "render", &[])
             .build();
 
         let app_rc = Rc::new(RefCell::new(App::new(dispatcher)));
-        let render_rc = Rc::new(WebRenderer::new(&gl_rc));
-        WebClient { gl: gl_rc, app: app_rc, render: render_rc}
+        WebClient { app: app_rc }
     }
 
-    pub fn start(&self) -> Result<(), JsValue> {
+    pub fn start(&mut self) -> Result<(), JsValue> {
         info!("WebClient starting...");
 
         attach_keydown_event(self.app.clone());
@@ -57,16 +55,14 @@ impl WebClient {
     pub fn update(&mut self, delta: u32) {
         self.app.borrow_mut().update(delta);
     }
-
-    pub fn render(&self) {
-        self.render.render(&self.gl);
-    }
 }
 
 pub fn attach_keydown_event(app: Rc<RefCell<App>>) {
+    info!("Attaching keydown");
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
     let canvas: HtmlCanvasElement = document.get_element_by_id("viewport").unwrap().dyn_into().unwrap();
+    let app = app.clone();
     let closure = Closure::wrap(Box::new(move |event: web_sys::KeyboardEvent| {
         app.borrow_mut().world
             .write_resource::<EventChannel<Event>>()
@@ -81,9 +77,11 @@ pub fn attach_keydown_event(app: Rc<RefCell<App>>) {
 }
 
 pub fn attach_keyup_event(app: Rc<RefCell<App>>) {
+    info!("Attaching keyup");
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
     let canvas: HtmlCanvasElement = document.get_element_by_id("viewport").unwrap().dyn_into().unwrap();
+    let app = app.clone();
     let closure = Closure::wrap(Box::new(move |event: web_sys::KeyboardEvent| {
         app.borrow_mut().world
             .write_resource::<EventChannel<Event>>()
