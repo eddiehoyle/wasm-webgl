@@ -7,7 +7,6 @@ use specs::DispatcherBuilder;
 use shrev::EventChannel;
 use specs::Dispatcher;
 use crate::input::system::InputSystem;
-use crate::client::dom::create_webgl_context;
 use crate::app::App;
 
 use std::rc::Rc;
@@ -17,7 +16,7 @@ use crate::render::WebRenderer;
 use crate::render::system::RenderSystem;
 use crate::event::system::*;
 
-mod dom;
+pub(crate) mod dom;
 
 #[wasm_bindgen]
 pub struct WebClient {
@@ -31,13 +30,11 @@ impl WebClient {
     pub fn new() -> Self {
         wasm_logger::init(wasm_logger::Config::new(log::Level::Debug));
 
-        let gl_rc = Rc::new(create_webgl_context().unwrap());
-
         let dispatcher = DispatcherBuilder::new()
             .with(EventSystem::new(), "window", &[])
             .with(InputSystem::new(), "input", &[])
             .with_barrier()
-//            .with(RenderSystem::new(), "render", &[])
+            .with(RenderSystem::new(), "render", &[])
             .build();
 
         let app_rc = Rc::new(RefCell::new(App::new(dispatcher)));

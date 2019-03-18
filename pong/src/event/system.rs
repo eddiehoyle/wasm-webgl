@@ -1,14 +1,6 @@
 use shrev::{EventChannel, ReaderId};
 use specs::prelude::{Read, Resources, System, Write};
 use crate::event;
-use crate::input::InputHandler;
-
-use std::rc::Rc;
-
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::*;
-use web_sys::*;
-use web_sys::WebGl2RenderingContext as GL;
 
 pub struct EventSystem {
     reader: Option<ReaderId<event::Event>>,

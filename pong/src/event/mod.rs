@@ -17,8 +17,3 @@ pub enum InputEvent {
     KeyPressed(String),
     KeyReleased(String),
 }
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct KeyboardInput {
-    pub scancode: u32,
-}

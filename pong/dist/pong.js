@@ -292,7 +292,7 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper586 = function(a, b, _ignored) {
+__exports.__wbindgen_closure_wrapper655 = function(a, b, _ignored) {
     const f = wasm.__wbg_function_table.get(18);
     const d = wasm.__wbg_function_table.get(19);
     const cb = function(arg0) {
