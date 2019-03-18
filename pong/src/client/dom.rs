@@ -2,7 +2,6 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::borrow::Borrow;
 use shrev::EventChannel;
-use crate::event::{Event, WindowEvent, InputEvent, KeyboardInput};
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::*;

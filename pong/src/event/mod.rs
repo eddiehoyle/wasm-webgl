@@ -1,3 +1,4 @@
+pub mod system;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Event {
@@ -8,9 +9,7 @@ pub enum Event {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum WindowEvent {
-    KeyboardInput {
-        input: InputEvent,
-    },
+    WindowResize(u32, u32),
 }
 
 #[derive(Clone, Debug, PartialEq)]

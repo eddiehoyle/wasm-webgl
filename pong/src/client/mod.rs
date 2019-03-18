@@ -12,12 +12,12 @@ use crate::app::App;
 
 use std::rc::Rc;
 use std::cell::RefCell;
-use crate::event::{Event, WindowEvent, InputEvent};
+use crate::event;
 use crate::render::WebRenderer;
 use crate::render::system::RenderSystem;
+use crate::event::system::*;
 
 mod dom;
-mod viewport;
 
 #[wasm_bindgen]
 pub struct WebClient {
@@ -34,6 +34,7 @@ impl WebClient {
         let gl_rc = Rc::new(create_webgl_context().unwrap());
 
         let dispatcher = DispatcherBuilder::new()
+            .with(EventSystem::new(), "window", &[])
             .with(InputSystem::new(), "input", &[])
             .with_barrier()
 //            .with(RenderSystem::new(), "render", &[])
@@ -65,12 +66,8 @@ pub fn attach_keydown_event(app: Rc<RefCell<App>>) {
     let app = app.clone();
     let closure = Closure::wrap(Box::new(move |event: web_sys::KeyboardEvent| {
         app.borrow_mut().world
-            .write_resource::<EventChannel<Event>>()
-            .single_write(Event::WindowEvent {
-                event: WindowEvent::KeyboardInput {
-                    input: InputEvent::KeyPressed(event.key()),
-                }
-            });
+            .write_resource::<EventChannel<event::InputEvent>>()
+            .single_write(event::InputEvent::KeyPressed(event.key()));
     }) as Box<dyn FnMut(_)>);
     document.add_event_listener_with_callback("keydown", closure.as_ref().unchecked_ref()).unwrap();
     closure.forget();
@@ -84,12 +81,8 @@ pub fn attach_keyup_event(app: Rc<RefCell<App>>) {
     let app = app.clone();
     let closure = Closure::wrap(Box::new(move |event: web_sys::KeyboardEvent| {
         app.borrow_mut().world
-            .write_resource::<EventChannel<Event>>()
-            .single_write(Event::WindowEvent {
-                event: WindowEvent::KeyboardInput {
-                    input: InputEvent::KeyReleased(event.key()),
-                }
-            });
+            .write_resource::<EventChannel<event::InputEvent>>()
+            .single_write(event::InputEvent::KeyReleased(event.key()));
     }) as Box<dyn FnMut(_)>);
     document.add_event_listener_with_callback("keyup", closure.as_ref().unchecked_ref()).unwrap();
     closure.forget();

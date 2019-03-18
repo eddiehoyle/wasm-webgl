@@ -1,6 +1,6 @@
 use shrev::{EventChannel, ReaderId};
 use specs::prelude::{Read, Resources, System, Write};
-use crate::event::{Event, WindowEvent, InputEvent, KeyboardInput};
+use crate::event::*;
 use crate::input::InputHandler;
 
 use wasm_bindgen::prelude::*;
