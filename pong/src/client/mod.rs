@@ -15,6 +15,7 @@ use crate::event;
 use crate::render::WebRenderer;
 use crate::render::system::RenderSystem;
 use crate::event::system::*;
+use crate::client::dom::*;
 
 pub(crate) mod dom;
 
@@ -30,11 +31,16 @@ impl WebClient {
     pub fn new() -> Self {
         wasm_logger::init(wasm_logger::Config::new(log::Level::Debug));
 
+//        let gl_rc = Rc::new(create_webgl_context().unwrap());
+        let canvas = init_canvas().unwrap();
+
         let dispatcher = DispatcherBuilder::new()
+//            .with_thread_local(EventSystem::new())
+//            .with_thread_local(InputSystem::new())
             .with(EventSystem::new(), "window", &[])
             .with(InputSystem::new(), "input", &[])
             .with_barrier()
-            .with(RenderSystem::new(), "render", &[])
+            .with_thread_local(RenderSystem::new(canvas))
             .build();
 
         let app_rc = Rc::new(RefCell::new(App::new(dispatcher)));

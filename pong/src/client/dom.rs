@@ -8,7 +8,7 @@ use wasm_bindgen::*;
 use web_sys::*;
 use web_sys::WebGl2RenderingContext as GL;
 
-fn init_canvas() -> Result<HtmlCanvasElement, JsValue> {
+pub fn init_canvas() -> Result<HtmlCanvasElement, JsValue> {
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
 
@@ -27,7 +27,7 @@ pub fn create_webgl_context() -> Result<GL, JsValue> {
         .get_context("webgl2")?
         .unwrap()
         .dyn_into::<GL>()?;
-    gl.clear_color(0.2, 0.0, 0.0, 1.0);
+    gl.clear_color(0.2, 0.2, 0.5, 1.0);
     gl.enable(GL::DEPTH_TEST);
     Ok(gl)
 }

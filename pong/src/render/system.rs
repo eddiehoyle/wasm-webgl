@@ -13,55 +13,50 @@ use specs::VecStorage;
 use specs::{ReadStorage};
 use specs::prelude::*;
 use shred_derive::*;
-use std::rc::Rc;
+use     std::rc::Rc;
 
 // -----------
-
-#[derive(Clone, Debug)]
-pub struct Pos {}
-
-impl Component for Pos {
-    type Storage = VecStorage<Self>;
-}
-
-#[derive(SystemData)]
-pub struct Renderable<'a> {
-    pos: ReadStorage<'a, Pos>,
-}
 
 #[derive(Default)]
-struct WebGLRender {
-//    gl: GL,
+pub struct WebGLRender {
+}
+
+impl WebGLRender {
+    fn new() -> Self {
+        WebGLRender { }
+    }
 }
 
 // -----------
-
 pub struct RenderSystem {
-    render: WebGLRender,
+    gl: GL,
 }
 
 impl RenderSystem {
 
-    pub fn new() -> Self {
-        RenderSystem {render: WebGLRender::default()}
+    pub fn new(canvas: HtmlCanvasElement) -> Self {
+        let gl: GL = canvas
+            .get_context("webgl2").unwrap()
+            .unwrap()
+            .dyn_into::<GL>().unwrap();
+        RenderSystem {gl}
     }
 }
 
 
 impl<'a> System<'a> for RenderSystem {
-    type SystemData = Renderable<'a>;
+    type SystemData = ();
 
-    fn run(&mut self, input: Self::SystemData) {
-//        info!("Rendering!")
+    fn run(&mut self, _: Self::SystemData) {
+        self.gl.clear_color(0.4, 0.0, 0.0, 1.0);
+        self.gl.clear(GL::COLOR_BUFFER_BIT);
+        self.gl.enable(GL::DEPTH_TEST);
+        self.gl.depth_func(GL::LEQUAL);
     }
 
     fn setup(&mut self, res: &mut Resources) {
         use specs::prelude::SystemData;
         Self::SystemData::setup(res);
-        self.render = WebGLRender {};
-
-//        self.reader = Some(res.fetch_mut::<GL>().register_reader());
-
         info!("Setting up RenderSystem");
     }
 }

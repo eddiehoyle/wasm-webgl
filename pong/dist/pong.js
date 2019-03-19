@@ -136,8 +136,16 @@ __exports.__widl_instanceof_WebGL2RenderingContext = function(idx) {
     return getObject(idx) instanceof WebGL2RenderingContext ? 1 : 0;
 };
 
+__exports.__widl_f_clear_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).clear(arg1);
+};
+
 __exports.__widl_f_clear_color_WebGL2RenderingContext = function(arg0, arg1, arg2, arg3, arg4) {
     getObject(arg0).clearColor(arg1, arg2, arg3, arg4);
+};
+
+__exports.__widl_f_depth_func_WebGL2RenderingContext = function(arg0, arg1) {
+    getObject(arg0).depthFunc(arg1);
 };
 
 __exports.__widl_f_enable_WebGL2RenderingContext = function(arg0, arg1) {
@@ -292,9 +300,9 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper655 = function(a, b, _ignored) {
-    const f = wasm.__wbg_function_table.get(18);
-    const d = wasm.__wbg_function_table.get(19);
+__exports.__wbindgen_closure_wrapper598 = function(a, b, _ignored) {
+    const f = wasm.__wbg_function_table.get(19);
+    const d = wasm.__wbg_function_table.get(20);
     const cb = function(arg0) {
         this.cnt++;
         let a = this.a;
