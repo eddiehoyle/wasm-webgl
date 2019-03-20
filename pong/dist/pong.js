@@ -97,8 +97,16 @@ __exports.__widl_f_get_context_HTMLCanvasElement = function(arg0, arg1, arg2, ex
     }
 };
 
+__exports.__widl_f_width_HTMLCanvasElement = function(arg0) {
+    return getObject(arg0).width;
+};
+
 __exports.__widl_f_set_width_HTMLCanvasElement = function(arg0, arg1) {
     getObject(arg0).width = arg1;
+};
+
+__exports.__widl_f_height_HTMLCanvasElement = function(arg0) {
+    return getObject(arg0).height;
 };
 
 __exports.__widl_f_set_height_HTMLCanvasElement = function(arg0, arg1) {
@@ -163,6 +171,14 @@ __exports.__widl_f_document_Window = function(arg0) {
 
 };
 
+__exports.__widl_f_set_interval_with_callback_and_timeout_and_arguments_Window = function(arg0, arg1, arg2, arg3, exnptr) {
+    try {
+        return getObject(arg0).setInterval(getObject(arg1), arg2, ...getObject(arg3));
+    } catch (e) {
+        handleError(exnptr, e);
+    }
+};
+
 __exports.__widl_f_debug_4_ = function(arg0, arg1, arg2, arg3) {
     console.debug(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3));
 };
@@ -185,6 +201,10 @@ __exports.__widl_f_log_4_ = function(arg0, arg1, arg2, arg3) {
 
 __exports.__widl_f_warn_4_ = function(arg0, arg1, arg2, arg3) {
     console.warn(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3));
+};
+
+__exports.__wbg_new_366f5eda217e0401 = function() {
+    return addHeapObject(new Array());
 };
 
 __exports.__wbg_newnoargs_4b1bc9d06177648d = function(arg0, arg1) {
@@ -300,9 +320,33 @@ function takeObject(idx) {
 
 __exports.__wbindgen_rethrow = function(idx) { throw takeObject(idx); };
 
-__exports.__wbindgen_closure_wrapper598 = function(a, b, _ignored) {
-    const f = wasm.__wbg_function_table.get(19);
-    const d = wasm.__wbg_function_table.get(20);
+__exports.__wbindgen_closure_wrapper629 = function(a, b, _ignored) {
+    const f = wasm.__wbg_function_table.get(25);
+    const d = wasm.__wbg_function_table.get(26);
+    const cb = function() {
+        this.cnt++;
+        let a = this.a;
+        this.a = 0;
+        try {
+            return f(a, b);
+
+        } finally {
+            this.a = a;
+            if (this.cnt-- == 1) d(this.a, b);
+
+        }
+
+    };
+    cb.a = a;
+    cb.cnt = 1;
+    let real = cb.bind(cb);
+    real.original = cb;
+    return addHeapObject(real);
+};
+
+__exports.__wbindgen_closure_wrapper631 = function(a, b, _ignored) {
+    const f = wasm.__wbg_function_table.get(27);
+    const d = wasm.__wbg_function_table.get(28);
     const cb = function(arg0) {
         this.cnt++;
         let a = this.a;

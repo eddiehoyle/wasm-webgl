@@ -17,23 +17,12 @@ use     std::rc::Rc;
 
 // -----------
 
-#[derive(Default)]
-pub struct WebGLRender {
-}
-
-impl WebGLRender {
-    fn new() -> Self {
-        WebGLRender { }
-    }
-}
-
 // -----------
 pub struct RenderSystem {
     gl: GL,
 }
 
 impl RenderSystem {
-
     pub fn new(canvas: HtmlCanvasElement) -> Self {
         let gl: GL = canvas
             .get_context("webgl2").unwrap()

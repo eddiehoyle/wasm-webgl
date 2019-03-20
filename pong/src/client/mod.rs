@@ -16,6 +16,7 @@ use crate::render::WebRenderer;
 use crate::render::system::RenderSystem;
 use crate::event::system::*;
 use crate::client::dom::*;
+use crate::app::viewport::Viewport;
 
 pub(crate) mod dom;
 
@@ -31,19 +32,16 @@ impl WebClient {
     pub fn new() -> Self {
         wasm_logger::init(wasm_logger::Config::new(log::Level::Debug));
 
-//        let gl_rc = Rc::new(create_webgl_context().unwrap());
         let canvas = init_canvas().unwrap();
 
-        let dispatcher = DispatcherBuilder::new()
-//            .with_thread_local(EventSystem::new())
-//            .with_thread_local(InputSystem::new())
+        let update_dispatcher = DispatcherBuilder::new()
             .with(EventSystem::new(), "window", &[])
             .with(InputSystem::new(), "input", &[])
-            .with_barrier()
             .with_thread_local(RenderSystem::new(canvas))
             .build();
 
-        let app_rc = Rc::new(RefCell::new(App::new(dispatcher)));
+        let app_rc = Rc::new(RefCell::new(App::new(update_dispatcher)));
+
         WebClient { app: app_rc }
     }
 
@@ -52,6 +50,7 @@ impl WebClient {
 
         attach_keydown_event(self.app.clone());
         attach_keyup_event(self.app.clone());
+        attach_viewport_resize(self.app.clone());
 
         Ok(())
     }
@@ -88,5 +87,28 @@ pub fn attach_keyup_event(app: Rc<RefCell<App>>) {
             .single_write(event::InputEvent::KeyReleased(event.key()));
     }) as Box<dyn FnMut(_)>);
     document.add_event_listener_with_callback("keyup", closure.as_ref().unchecked_ref()).unwrap();
+    closure.forget();
+}
+
+pub fn attach_viewport_resize(app: Rc<RefCell<App>>) {
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
+    let canvas: HtmlCanvasElement = document.get_element_by_id("viewport").unwrap().dyn_into().unwrap();
+    let app = app.clone();
+    let closure = Closure::wrap(Box::new(move || {
+        let size : (u32, u32) = app.borrow().world.read_resource::<Viewport>().size();
+        if canvas.width() != size.0 || canvas.height() != size.1 {
+            app.borrow_mut().world
+                .write_resource::<EventChannel<event::WindowEvent>>()
+                .single_write(event::WindowEvent::WindowResize(size.0, size.1));
+            info!("Resized: {}, {}", canvas.width(), canvas.height());
+        }
+
+    }) as Box<FnMut()>);
+    window.set_interval_with_callback_and_timeout_and_arguments(
+        closure.as_ref().unchecked_ref(),
+        250,
+        &js_sys::Array::new()
+    ).unwrap();
     closure.forget();
 }
