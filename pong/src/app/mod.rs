@@ -3,6 +3,7 @@ use shrev::{EventChannel};
 
 use crate::event;
 
+pub mod systems;
 pub mod viewport;
 use crate::app::viewport::Viewport;
 
@@ -15,7 +16,6 @@ impl App {
     pub fn new(mut update_dispatcher: Dispatcher<'static, 'static>, ) -> Self {
 
         let mut world = World::new();
-        world.add_resource(EventChannel::<event::Event>::new());
         world.add_resource(Viewport::new(320, 240));
         update_dispatcher.setup(&mut world.res);
         world.maintain();

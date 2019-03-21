@@ -14,9 +14,9 @@ use std::cell::RefCell;
 use crate::event;
 use crate::render::WebRenderer;
 use crate::render::system::RenderSystem;
-use crate::event::system::*;
 use crate::client::dom::*;
 use crate::app::viewport::Viewport;
+use crate::app::systems::ViewportSystem;
 
 pub(crate) mod dom;
 
@@ -35,8 +35,9 @@ impl WebClient {
         let canvas = init_canvas().unwrap();
 
         let update_dispatcher = DispatcherBuilder::new()
-            .with(EventSystem::new(), "window", &[])
+//            .with(EventSystem::new(), "events", &[])
             .with(InputSystem::new(), "input", &[])
+            .with(ViewportSystem::new(), "viewport", &[])
             .with_thread_local(RenderSystem::new(canvas))
             .build();
 
@@ -86,7 +87,8 @@ pub fn attach_keyup_event(app: Rc<RefCell<App>>) {
             .write_resource::<EventChannel<event::InputEvent>>()
             .single_write(event::InputEvent::KeyReleased(event.key()));
     }) as Box<dyn FnMut(_)>);
-    document.add_event_listener_with_callback("keyup", closure.as_ref().unchecked_ref()).unwrap();
+    document.add_event_listener_with_callback("keyup", closure.as_ref().unchecked_ref())
+        .unwrap();
     closure.forget();
 }
 
@@ -100,15 +102,10 @@ pub fn attach_viewport_resize(app: Rc<RefCell<App>>) {
         if canvas.width() != size.0 || canvas.height() != size.1 {
             app.borrow_mut().world
                 .write_resource::<EventChannel<event::WindowEvent>>()
-                .single_write(event::WindowEvent::WindowResize(size.0, size.1));
-            info!("Resized: {}, {}", canvas.width(), canvas.height());
+                .single_write(event::WindowEvent::WindowResize(canvas.width(), canvas.height()));
         }
-
     }) as Box<FnMut()>);
-    window.set_interval_with_callback_and_timeout_and_arguments(
-        closure.as_ref().unchecked_ref(),
-        250,
-        &js_sys::Array::new()
-    ).unwrap();
+    window.set_interval_with_callback_and_timeout_and_arguments(closure.as_ref().unchecked_ref(), 250, &js_sys::Array::new())
+        .unwrap();
     closure.forget();
 }
