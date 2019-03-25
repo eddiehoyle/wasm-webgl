@@ -14,6 +14,7 @@ use specs::{ReadStorage};
 use specs::prelude::*;
 use shred_derive::*;
 use     std::rc::Rc;
+use crate::app::viewport::Viewport;
 
 // -----------
 
@@ -34,13 +35,14 @@ impl RenderSystem {
 
 
 impl<'a> System<'a> for RenderSystem {
-    type SystemData = ();
+    type SystemData = Read<'a, Viewport>;
 
-    fn run(&mut self, _: Self::SystemData) {
+    fn run(&mut self, viewport: Self::SystemData) {
         self.gl.clear_color(0.4, 0.0, 0.0, 1.0);
         self.gl.clear(GL::COLOR_BUFFER_BIT);
         self.gl.enable(GL::DEPTH_TEST);
         self.gl.depth_func(GL::LEQUAL);
+        let (x, y) = viewport.size();
     }
 
     fn setup(&mut self, res: &mut Resources) {

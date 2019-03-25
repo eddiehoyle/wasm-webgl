@@ -12,20 +12,9 @@ pub mod shader;
 pub mod traits;
 pub mod system;
 
-struct Viewport {
-    width: u32,
-    height: u32,
-}
-
 pub struct WebRenderer {
     shaders: ShaderManager,
-    viewport: Viewport,
 //    camera: Camera,
-}
-impl Viewport {
-    fn new() -> Self {
-        Viewport {width: 0, height: 0 }
-    }
 }
 
 impl WebRenderer {
@@ -37,7 +26,7 @@ impl WebRenderer {
 //        let cube = Cube::new(&gl, 20.0);
 //        let camera = Camera::new();
 
-        WebRenderer {shaders: ShaderManager::new(&gl), viewport: Viewport::new() }
+        WebRenderer {shaders: ShaderManager::new(&gl)}
     }
 
 //    pub fn shaders(&self) -> &ShaderManager {
