@@ -38,7 +38,7 @@ impl WebClient {
 //            .with(EventSystem::new(), "events", &[])
             .with(InputSystem::new(), "input", &[])
             .with(ViewportSystem::new(), "viewport", &[])
-            .with_thread_local(RenderSystem::new(canvas))
+//            .with_thread_local(RenderSystem::new(canvas))
             .build();
 
         let app_rc = Rc::new(RefCell::new(App::new(update_dispatcher)));
