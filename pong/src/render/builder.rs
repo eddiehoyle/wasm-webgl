@@ -3,11 +3,13 @@ use wasm_bindgen::*;
 use js_sys::*;
 use web_sys::*;
 use web_sys::WebGl2RenderingContext as GL;
+use std::collections::HashSet;
+use std::collections::HashMap;
 
 #[derive(Debug, Default)]
 struct RenderSystemBuilder {
     canvas: Option<HtmlCanvasElement>,
-    definitions: Vec<ShaderDefinition>,
+    descriptions: Vec<ShaderDescription>,
 }
 
 
@@ -24,8 +26,8 @@ impl RenderSystemBuilder {
         self.canvas = Some(canvas);
         self
     }
-    fn register(mut self, definition: ShaderDefinition) -> Self {
-        self.definitions.push(definition);
+    fn register(mut self, description: ShaderDescription) -> Self {
+        self.descriptions.push(description);
         self
     }
     fn build(self) -> Result<RenderSystem, String> {
@@ -37,7 +39,20 @@ impl RenderSystemBuilder {
                 .dyn_into::<GL>()
                 .map_err(|_| "Unable to get rendering context")?;
 //
-//            let mut renderers = HashMap::default();
+            let mut renderers = HashMap::default();
+
+            for description in self.descriptions {
+                if renderers.contains_key(&description.id) {
+                    return Err(
+                        format!("Multiple renderers registered with id {}", description.id)
+                            .to_owned(),
+                    );
+                }
+
+                let renderer_id = description.id.clone();
+                let renderer = Self::compile(&gl, description)?;
+                renderers.insert(renderer_id, renderer);
+            }
 //
 //            for definition in self.definitions {
 //                if renderers.contains_key(&definition.id) {
@@ -62,30 +77,44 @@ impl RenderSystemBuilder {
             Err("No canvas specified".to_owned())
         }
     }
-    fn compile(gl: &GL, definition: ShaderDefinition) -> Result<Renderable, String> {
+    fn compile(gl: &GL, description: ShaderDescription) -> Result<Renderable, String> {
 
-        info!("Compiling render {}", definition.id);
+        info!("Compiling render {}", description.id);
         let vert_shader = Self::compile_shader(
             gl,
             GL::VERTEX_SHADER,
-            &definition.vertex_shader,
+            &description.vertex_shader,
         )?;
 
         let frag_shader = Self::compile_shader(
             gl,
             GL::FRAGMENT_SHADER,
-            &definition.fragment_shader,
+            &description.fragment_shader,
         )?;
 
         let program = Self::link_program(gl, [vert_shader, frag_shader].iter())?;
 
-        let projection_matrix_location = gl
-            .get_uniform_location(&program, "uProjectionMatrix")
-            .ok_or("Unable to get uniform location for uProjectionMatrix")?;
+//        let projection_matrix_location = gl
+//            .get_uniform_location(&program, "uProjectionMatrix")
+//            .ok_or("Unable to get uniform location for uProjectionMatrix")?;
+//
+//        let model_view_matrix_location = gl
+//            .get_uniform_location(&program, "uModelViewMatrix")
+//            .ok_or("Unable to get uniform location for uModelViewMatrix")?;
 
-        let model_view_matrix_location = gl
-            .get_uniform_location(&program, "uModelViewMatrix")
-            .ok_or("Unable to get uniform location for uModelViewMatrix")?;
+        let mut uniforms = Vec::new();
+        for uniform in &description.uniforms {
+            let location = gl
+                .get_uniform_location(&program, &uniform)
+                .ok_or(format!("Unable to get uniform location for {}", &uniform)
+                    .to_owned())?;
+            let uniform_type = gl.get_active_uniforms(
+                &program,
+                uniform_indices: &[&uniform],
+                GL::UNIFORM_TYPE,
+            );
+            uniforms.push(ShaderUniform{ name: &uniform, location, uniform_type });
+        }
 
         let vao = gl
             .create_vertex_array()
@@ -173,14 +202,36 @@ impl RenderSystemBuilder {
 
 
 
+struct ShaderDescription {
+    name: String,
+    vertex_source: String,
+    fragment_source: String,
+    attributes: Vec<ShaderAttribute>,
+    uniforms: Vec<ShaderUniform>,
+}
+
 struct ShaderDefinition {
+    program: WebGlProgram,
+    vao: WebGlVertexArrayObject,
+    attributes: Vec<ShaderAttribute>,
+    uniforms: Vec<ShaderUniform>,
 }
 
 struct ShaderAttribute {
+    name: String,
+    location: u32,
+    buffer_type: u32,
+    buffer_data_type: u32,
+    num_components: i32,
 }
 
 struct ShaderUniform {
+    name: String,
+    location: u32,
+    uniform_type: u32,
 }
 
 struct Renderer {
+    shader: ShaderDefinition,
+
 }
