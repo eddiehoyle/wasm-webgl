@@ -77,7 +77,7 @@ impl RenderSystemBuilder {
             Err("No canvas specified".to_owned())
         }
     }
-    fn compile(gl: &GL, mut description: ShaderDescription) -> Result<(), String> {
+    fn compile(gl: &GL, description: ShaderDescription) -> Result<(), String> {
 
         info!("Compiling render {}", description.name);
         let vert_shader = Self::compile_shader(
@@ -131,12 +131,20 @@ impl RenderSystemBuilder {
 //                }
 //            }).collect::Vec<ShaderAttribute>();
 
-        for uniform in &mut description.uniforms {
-            uniform.location = gl
-                .get_uniform_location(&program, uniform.name.as_str())
-                .expect(format!("Unable to get uniform location for {}", uniform.name.as_str())
-                    .as_str());
-        }
+        let uniforms = &description.uniforms
+            .iter()
+            .map(|uniform|{
+                let location = gl
+                    .get_uniform_location(&program, uniform.name.as_str())
+                    .expect(format!("Unable to get uniform location for {}", uniform.name.as_str())
+                        .as_str());
+                ShaderUniform {
+                    name: uniform.name.clone(),
+                    location,
+                    uniform_type: uniform.uniform_type.clone()
+                }
+            })
+            .collect::<Vec<ShaderUniform>>();
 
 
 //        gl.bind_vertex_array(Some(&vao));
@@ -231,6 +239,7 @@ struct ShaderDescription {
 
 #[derive(Debug)]
 struct ShaderDefinition {
+    name: String,
     program: WebGlProgram,
     vao: WebGlVertexArrayObject,
     attributes: Vec<ShaderAttribute>,
