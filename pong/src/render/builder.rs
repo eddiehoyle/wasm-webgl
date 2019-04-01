@@ -38,22 +38,22 @@ impl RenderSystemBuilder {
                 .ok_or("Unable to get rendering context")?
                 .dyn_into::<GL>()
                 .map_err(|_| "Unable to get rendering context")?;
-//
-            let mut renderers = HashMap::default();
 
-            for description in self.descriptions {
-                if renderers.contains_key(&description.id) {
-                    return Err(
-                        format!("Multiple renderers registered with id {}", description.id)
-                            .to_owned(),
-                    );
-                }
-
-                let renderer_id = description.id.clone();
-                let renderer = Self::compile(&gl, description)?;
-                renderers.insert(renderer_id, renderer);
-            }
+//            let mut renderers = HashMap::default();
 //
+//            for description in self.descriptions {
+//                if renderers.contains_key(&description.name) {
+//                    return Err(
+//                        format!("Multiple renderers registered with id {}", description.name)
+//                            .to_owned(),
+//                    );
+//                }
+//
+//                let renderer_id = description.name.clone();
+//                let renderer = Self::compile(&gl, description)?;
+//                renderers.insert(renderer_id, renderer);
+//            }
+
 //            for definition in self.definitions {
 //                if renderers.contains_key(&definition.id) {
 //                    return Err(
@@ -77,19 +77,19 @@ impl RenderSystemBuilder {
             Err("No canvas specified".to_owned())
         }
     }
-    fn compile(gl: &GL, description: ShaderDescription) -> Result<Renderable, String> {
+    fn compile(gl: &GL, mut description: ShaderDescription) -> Result<(), String> {
 
-        info!("Compiling render {}", description.id);
+        info!("Compiling render {}", description.name);
         let vert_shader = Self::compile_shader(
             gl,
             GL::VERTEX_SHADER,
-            &description.vertex_shader,
+            &description.vertex_source,
         )?;
 
         let frag_shader = Self::compile_shader(
             gl,
             GL::FRAGMENT_SHADER,
-            &description.fragment_shader,
+            &description.fragment_source,
         )?;
 
         let program = Self::link_program(gl, [vert_shader, frag_shader].iter())?;
@@ -102,19 +102,6 @@ impl RenderSystemBuilder {
 //            .get_uniform_location(&program, "uModelViewMatrix")
 //            .ok_or("Unable to get uniform location for uModelViewMatrix")?;
 
-        let mut uniforms = Vec::new();
-        for uniform in &description.uniforms {
-            let location = gl
-                .get_uniform_location(&program, &uniform)
-                .ok_or(format!("Unable to get uniform location for {}", &uniform)
-                    .to_owned())?;
-            let uniform_type = gl.get_active_uniforms(
-                &program,
-                uniform_indices: &[&uniform],
-                GL::UNIFORM_TYPE,
-            );
-            uniforms.push(ShaderUniform{ name: &uniform, location, uniform_type });
-        }
 
         let vao = gl
             .create_vertex_array()
@@ -124,30 +111,59 @@ impl RenderSystemBuilder {
             .create_buffer()
             .ok_or("Unable to create buffer".to_owned())?;
 
-        gl.bind_vertex_array(Some(&vao));
+//        let attributes = &description.attributes
+//            .iter()
+//            .map(|attr|{
+//                gl.enable_vertex_attrib_array(attr.location);
+//                gl.bind_buffer(attr.buffer_type, Some(&buffer));
+//                gl.vertex_attrib_pointer_with_i32(
+//                    attr.location,
+//                    attr.num_components,
+//                    attr.buffer_data_type,
+//                    false,
+//                    0,
+//                    0,
+//                );
+//                ShaderAttribute {
+//                    attr.name,
+//
+//
+//                }
+//            }).collect::Vec<ShaderAttribute>();
 
-        for input in &definition.inputs {
-            gl.enable_vertex_attrib_array(input.location);
-            gl.bind_buffer(input.buffer_type, Some(&buffer));
-            gl.vertex_attrib_pointer_with_i32(
-                input.location,
-                input.num_components,
-                input.buffer_data_type,
-                false,
-                0,
-                0,
-            );
+        for uniform in &mut description.uniforms {
+            uniform.location = gl
+                .get_uniform_location(&program, uniform.name.as_str())
+                .expect(format!("Unable to get uniform location for {}", uniform.name.as_str())
+                    .as_str());
         }
 
-        gl.bind_vertex_array(None);
 
-        Ok(Renderable {
-            definition,
-            program,
-            vao,
-            projection_matrix_location,
-            model_view_matrix_location,
-        })
+//        gl.bind_vertex_array(Some(&vao));
+
+//        for input in &definition.inputs {
+//            gl.enable_vertex_attrib_array(input.location);
+//            gl.bind_buffer(input.buffer_type, Some(&buffer));
+//            gl.vertex_attrib_pointer_with_i32(
+//                input.location,
+//                input.num_components,
+//                input.buffer_data_type,
+//                false,
+//                0,
+//                0,
+//            );
+//        }
+
+        gl.bind_vertex_array(None);
+        Ok(())
+
+//        Ok(Renderable {
+//            definition,
+//            program,
+//            vao,
+//            projection_matrix_location,
+//            model_view_matrix_location,
+//        })
     }
 
     fn compile_shader(gl: &GL, shader_type: u32, source: &str) -> Result<WebGlShader, String> {
@@ -198,10 +214,13 @@ impl RenderSystemBuilder {
 
 
 
+/// Current problem:
+/// Need a simple way of describing a shader's source,
+/// attributes and uniforms to RenderSystem builder
 
 
 
-
+#[derive(Debug)]
 struct ShaderDescription {
     name: String,
     vertex_source: String,
@@ -210,6 +229,7 @@ struct ShaderDescription {
     uniforms: Vec<ShaderUniform>,
 }
 
+#[derive(Debug)]
 struct ShaderDefinition {
     program: WebGlProgram,
     vao: WebGlVertexArrayObject,
@@ -217,6 +237,7 @@ struct ShaderDefinition {
     uniforms: Vec<ShaderUniform>,
 }
 
+#[derive(Debug)]
 struct ShaderAttribute {
     name: String,
     location: u32,
@@ -225,9 +246,10 @@ struct ShaderAttribute {
     num_components: i32,
 }
 
+#[derive(Debug)]
 struct ShaderUniform {
     name: String,
-    location: u32,
+    location: WebGlUniformLocation,
     uniform_type: u32,
 }
 
