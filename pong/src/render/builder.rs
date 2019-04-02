@@ -5,32 +5,51 @@ use web_sys::*;
 use web_sys::WebGl2RenderingContext as GL;
 use std::collections::HashSet;
 use std::collections::HashMap;
+use specs::prelude::*;
+
+pub struct RenderSystem {
+    gl: GL,
+    renderers: Vec<Renderer>,
+}
+
+
+impl<'a> System<'a> for RenderSystem {
+
+    type SystemData = ();
+
+    fn run(&mut self, _: Self::SystemData) {
+        self.gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
+    }
+
+    fn setup(&mut self, res: &mut Resources) {
+        use specs::prelude::SystemData;
+        Self::SystemData::setup(res);
+        info!("Setting up RenderSystem");
+    }
+}
+
 
 #[derive(Debug, Default)]
-struct RenderSystemBuilder {
+pub struct RenderSystemBuilder {
     canvas: Option<HtmlCanvasElement>,
     descriptions: Vec<ShaderDescription>,
 }
 
 
-struct RenderSystem {
-    gl: GL,
-}
-
 
 impl RenderSystemBuilder {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self::default()
     }
-    fn with_canvas(mut self, canvas: HtmlCanvasElement) -> Self {
+    pub fn with_canvas(mut self, canvas: HtmlCanvasElement) -> Self {
         self.canvas = Some(canvas);
         self
     }
-    fn register(mut self, description: ShaderDescription) -> Self {
+    pub fn register(mut self, description: ShaderDescription) -> Self {
         self.descriptions.push(description);
         self
     }
-    fn build(self) -> Result<RenderSystem, String> {
+    pub fn build(self) -> Result<RenderSystem, String> {
         if let Some(canvas) = self.canvas {
             let gl = canvas
                 .get_context("webgl2")
@@ -39,47 +58,20 @@ impl RenderSystemBuilder {
                 .dyn_into::<GL>()
                 .map_err(|_| "Unable to get rendering context")?;
 
-//            let mut renderers = HashMap::default();
-//
-//            for description in self.descriptions {
-//                if renderers.contains_key(&description.name) {
-//                    return Err(
-//                        format!("Multiple renderers registered with id {}", description.name)
-//                            .to_owned(),
-//                    );
-//                }
-//
-//                let renderer_id = description.name.clone();
-//                let renderer = Self::compile(&gl, description)?;
-//                renderers.insert(renderer_id, renderer);
-//            }
+            let mut renderers = Vec::new();
+            for description in &self.descriptions {
+                let definition = Self::compile(&gl, description.clone())?;
+                renderers.push(Renderer {shader: definition});
+            }
 
-//            for definition in self.definitions {
-//                if renderers.contains_key(&definition.id) {
-//                    return Err(
-//                        format!("Multiple renderers registered with id {}", definition.id)
-//                            .to_owned(),
-//                    );
-//                }
-//
-//                let renderer_id = definition.id.clone();
-//                let renderer = Self::compile(&gl, definition)?;
-//                renderers.insert(renderer_id, renderer);
-//            }
-//
-//            gl.clear_color(0.0, 0.0, 0.0, 1.0);
-//            gl.clear(GL::COLOR_BUFFER_BIT);
-//            gl.enable(GL::DEPTH_TEST);
-//            gl.depth_func(GL::LEQUAL);
-
-            Ok(RenderSystem { gl })
+            Ok(RenderSystem { gl, renderers })
         } else {
             Err("No canvas specified".to_owned())
         }
     }
-    fn compile(gl: &GL, description: ShaderDescription) -> Result<(), String> {
+    fn compile(gl: &GL, mut description: ShaderDescription) -> Result<ShaderDefinition, String> {
 
-        info!("Compiling render {}", description.name);
+        info!("Compiling shader {}", &description.name);
         let vert_shader = Self::compile_shader(
             gl,
             GL::VERTEX_SHADER,
@@ -94,84 +86,30 @@ impl RenderSystemBuilder {
 
         let program = Self::link_program(gl, [vert_shader, frag_shader].iter())?;
 
-//        let projection_matrix_location = gl
-//            .get_uniform_location(&program, "uProjectionMatrix")
-//            .ok_or("Unable to get uniform location for uProjectionMatrix")?;
-//
-//        let model_view_matrix_location = gl
-//            .get_uniform_location(&program, "uModelViewMatrix")
-//            .ok_or("Unable to get uniform location for uModelViewMatrix")?;
+        info!("Linked program {}", &description.name);
 
+        for uniform in &mut description.uniforms {
+            uniform.location = Some(gl
+                .get_uniform_location(&program, uniform.name.as_str())
+                .expect(format!("Unable to get uniform location for {}", uniform.name.as_str())
+                    .as_str()));
+        }
 
-        let vao = gl
-            .create_vertex_array()
-            .ok_or("Unable to create vertex array".to_owned())?;
+        for attribute in &mut description.attributes {
+            let location = gl
+                .get_attrib_location(&program, attribute.name.as_str());
+            if location == -1 {
+                return Err(format!("Unable to get attribute location for {}", attribute.name.as_str()));
+            }
+            attribute.location = Some(location);
+        }
 
-        let buffer = gl
-            .create_buffer()
-            .ok_or("Unable to create buffer".to_owned())?;
-
-//        let attributes = &description.attributes
-//            .iter()
-//            .map(|attr|{
-//                gl.enable_vertex_attrib_array(attr.location);
-//                gl.bind_buffer(attr.buffer_type, Some(&buffer));
-//                gl.vertex_attrib_pointer_with_i32(
-//                    attr.location,
-//                    attr.num_components,
-//                    attr.buffer_data_type,
-//                    false,
-//                    0,
-//                    0,
-//                );
-//                ShaderAttribute {
-//                    attr.name,
-//
-//
-//                }
-//            }).collect::Vec<ShaderAttribute>();
-
-        let uniforms = &description.uniforms
-            .iter()
-            .map(|uniform|{
-                let location = gl
-                    .get_uniform_location(&program, uniform.name.as_str())
-                    .expect(format!("Unable to get uniform location for {}", uniform.name.as_str())
-                        .as_str());
-                ShaderUniform {
-                    name: uniform.name.clone(),
-                    location,
-                    uniform_type: uniform.uniform_type.clone()
-                }
-            })
-            .collect::<Vec<ShaderUniform>>();
-
-
-//        gl.bind_vertex_array(Some(&vao));
-
-//        for input in &definition.inputs {
-//            gl.enable_vertex_attrib_array(input.location);
-//            gl.bind_buffer(input.buffer_type, Some(&buffer));
-//            gl.vertex_attrib_pointer_with_i32(
-//                input.location,
-//                input.num_components,
-//                input.buffer_data_type,
-//                false,
-//                0,
-//                0,
-//            );
-//        }
-
-        gl.bind_vertex_array(None);
-        Ok(())
-
-//        Ok(Renderable {
-//            definition,
-//            program,
-//            vao,
-//            projection_matrix_location,
-//            model_view_matrix_location,
-//        })
+        Ok(ShaderDefinition {
+            name: description.name,
+            program,
+            uniforms: description.uniforms,
+            attributes: description.attributes,
+        })
     }
 
     fn compile_shader(gl: &GL, shader_type: u32, source: &str) -> Result<WebGlShader, String> {
@@ -228,41 +166,39 @@ impl RenderSystemBuilder {
 
 
 
-#[derive(Debug)]
-struct ShaderDescription {
-    name: String,
-    vertex_source: String,
-    fragment_source: String,
-    attributes: Vec<ShaderAttribute>,
-    uniforms: Vec<ShaderUniform>,
+#[derive(Debug, Clone)]
+pub struct ShaderDescription {
+    pub name: String,
+    pub vertex_source: String,
+    pub fragment_source: String,
+    pub attributes: Vec<ShaderAttribute>,
+    pub uniforms: Vec<ShaderUniform>,
 }
 
-#[derive(Debug)]
-struct ShaderDefinition {
-    name: String,
-    program: WebGlProgram,
-    vao: WebGlVertexArrayObject,
-    attributes: Vec<ShaderAttribute>,
-    uniforms: Vec<ShaderUniform>,
+#[derive(Debug, Clone)]
+pub struct ShaderDefinition {
+    pub name: String,
+    pub program: WebGlProgram,
+    pub attributes: Vec<ShaderAttribute>,
+    pub uniforms: Vec<ShaderUniform>,
 }
 
-#[derive(Debug)]
-struct ShaderAttribute {
-    name: String,
-    location: u32,
-    buffer_type: u32,
-    buffer_data_type: u32,
-    num_components: i32,
+#[derive(Debug, Clone)]
+pub struct ShaderAttribute {
+    pub name: String,
+    pub location: Option<i32>,
+    pub buffer_type: u32,
+    pub buffer_data_type: u32,
+    pub num_components: i32,
 }
 
-#[derive(Debug)]
-struct ShaderUniform {
-    name: String,
-    location: WebGlUniformLocation,
-    uniform_type: u32,
+#[derive(Debug, Clone)]
+pub struct ShaderUniform {
+    pub name: String,
+    pub location: Option<WebGlUniformLocation>,
+    pub uniform_type: u32,
 }
 
-struct Renderer {
-    shader: ShaderDefinition,
-
+pub struct Renderer {
+    pub shader: ShaderDefinition,
 }

@@ -17,6 +17,7 @@ use crate::event::{WindowEvent, InputEvent};
 use crate::client::dom::*;
 use crate::app::viewport::Viewport;
 use crate::app::systems::ViewportSystem;
+use crate::render::builder::*;
 
 pub(crate) mod dom;
 
@@ -34,11 +35,53 @@ impl WebClient {
 
         let canvas = init_canvas().unwrap();
 
+        let vertex_source = String::from(r#"#version 300 es
+precision mediump float;
+
+in vec3 position;
+
+uniform mat4 view;
+
+void main() {
+    gl_Position = vec4(position, 1.0);
+}"#);
+        let fragment_source = String::from(r#"#version 300 es
+precision mediump float;
+
+out vec4 outColor;
+
+void main() {
+    outColor = vec4(0.2, 0.3, 0.2, 1.0);
+}"#);
+        let render_sys = RenderSystemBuilder::new()
+            .with_canvas(canvas)
+            .register(ShaderDescription {
+                name: String::from("static"),
+                vertex_source,
+                fragment_source,
+                attributes: vec![ShaderAttribute {
+                    name: String::from("position"),
+                    location: None,
+                    buffer_type: GL::ARRAY_BUFFER,
+                    buffer_data_type: GL::FLOAT,
+                    num_components: 3,
+                }],
+                uniforms: vec![ShaderUniform {
+                    name: String::from("view"),
+                    location: None,
+                    uniform_type: GL::FLOAT_MAT4,
+                }],
+            })
+            .build();
+        if let Err(e) = render_sys {
+            error!("{}", e);
+        }
+
         let update_dispatcher = DispatcherBuilder::new()
 //            .with(EventSystem::new(), "events", &[])
             .with(InputSystem::new(), "input", &[])
             .with(ViewportSystem::new(), "viewport", &[])
-//            .with_thread_local(RenderSystem::new(canvas))
+//            .with_thread_local(render_sys)
             .build();
 
         let app_rc = Rc::new(RefCell::new(App::new(update_dispatcher)));
